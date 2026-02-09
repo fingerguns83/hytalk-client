@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane fx:id="CONNECTION_ROOT" focusTraversable="true" prefHeight="400.0" prefWidth="400.0" style="-fx-background-color: #19212E;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.fg83.hytalkclient.ui.controller.ConnectionController">
+   <children>
+      <VBox alignment="TOP_CENTER" prefHeight="400.0" prefWidth="400.0">
+         <children>
+            <Pane prefHeight="100.0" prefWidth="400.0">
+               <children>
+                  <ImageView disable="true" fitHeight="150.0" fitWidth="150.0" layoutX="135.0" layoutY="-5.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../../../../assets/images/hytalk_logo_transparent.png" />
+                     </image>
+                  </ImageView>
+               </children>
+            </Pane>
+            <VBox prefHeight="300.0" prefWidth="400.0">
+               <children>
+                  <Pane prefHeight="300.0" prefWidth="400.0">
+                     <children>
+                        <TextField id="server-address" alignment="CENTER" focusTraversable="false" layoutX="47.0" layoutY="69.0" promptText="Server Address" style="-fx-background-color: #2d3b53; -fx-border-color: #8A8A8A; -fx-text-fill: white; -fx-border-radius: 10px; -fx-background-radius: 10px;">
+                           <font>
+                              <Font name="Bona Nova SC Regular" size="24.0" />
+                           </font>
+                        </TextField>
+                        <TextField id="server-control-port" alignment="CENTER" focusTraversable="false" layoutX="142.0" layoutY="135.0" prefHeight="37.0" prefWidth="116.0" promptText="Port (5222)" style="-fx-background-color: #2d3b53; -fx-text-fill: white; -fx-border-color: #8A8A8A; -fx-border-radius: 10px; -fx-background-radius: 10px;">
+                           <font>
+                              <Font name="Bona Nova SC Regular" size="18.0" />
+                           </font>
+                        </TextField>
+                     </children>
+                  </Pane>
+                  <Pane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <Button focusTraversable="false" layoutX="151.0" layoutY="14.0" mnemonicParsing="false" onAction="#attemptConnection" style="-fx-background-color: #EDAE49; -fx-background-radius: 10px; -fx-border-radius: 10px;" text="Connect">
+                           <font>
+                              <Font name="Bona Nova SC Bold" size="20.0" />
+                           </font>
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor>
+                        </Button>
+                     </children>
+                  </Pane>
+               </children>
+            </VBox>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

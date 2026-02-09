@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.paint.LinearGradient?>
+<?import javafx.scene.paint.Stop?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.text.Font?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="120.0" style="-fx-background-color: #353434;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.fg83.hytalkclient.ui.controller.ChannelStripController">
+   <children>
+      <HBox prefHeight="50.0" prefWidth="100.0" />
+      <HBox prefHeight="270.0" prefWidth="100.0">
+         <children>
+            <Pane onScroll="#onMouseScroll" prefHeight="270.0" prefWidth="60.0">
+               <children>
+                  <Line endX="48.0" layoutY="41.0" stroke="#bcbcbc" />
+                  <Line endX="48.0" layoutY="77.0" stroke="#bcbcbc" />
+                  <Line endX="48.0" layoutY="114.5" stroke="#bcbcbc" />
+                  <Line endX="48.0" layoutY="152.0" stroke="#bcbcbc" />
+                  <Line endX="48.0" layoutY="188.0" stroke="#bcbcbc" />
+                  <Line endX="48.0" layoutY="223.5" stroke="#bcbcbc" />
+                  <Line endX="25.0" endY="236.0" startX="25.0" startY="26.0" stroke="#131313" strokeLineCap="ROUND" strokeWidth="5.0" />
+                  <ImageView fitWidth="40.0" layoutX="5.0" layoutY="36.4" onMouseClicked="#onMouseClick" onMouseDragged="#onMouseDrag" onMousePressed="#onMousePressed" onMouseReleased="#onMouseReleased" pickOnBounds="true" preserveRatio="true" styleClass="fader-cap">
+                     <image>
+                        <Image url="@../../../../assets/images/fader.png" />
+                     </image>
+                  </ImageView>
+               </children>
+            </Pane>
+            <HBox prefHeight="270.0" prefWidth="60.0">
+               <children>
+                  <Pane prefHeight="270.0" prefWidth="40.0">
+                     <children>
+                        <Label layoutX="2.0" layoutY="32.5" text="+12" textFill="#8a8a8a">
+                           <font>
+                              <Font name="SansSerif Regular" size="13.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="2.0" layoutY="68.0" text="±0" textFill="#8a8a8a">
+                           <font>
+                              <Font name="SansSerif Regular" size="13.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="2.0" layoutY="105.0" text="-12" textFill="#8a8a8a">
+                           <font>
+                              <Font name="SansSerif Regular" size="13.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="2.0" layoutY="142.5" text="-24" textFill="#8a8a8a">
+                           <font>
+                              <Font name="SansSerif Regular" size="13.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="2.0" layoutY="178.5" text="-48" textFill="#8a8a8a">
+                           <font>
+                              <Font name="SansSerif Regular" size="13.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="2.0" layoutY="214.0" text="-" textFill="#8a8a8a">
+                           <font>
+                              <Font name="SansSerif Regular" size="13.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="5.0" layoutY="207.0" text="∞" textFill="#8a8a8a">
+                           <font>
+                              <Font name="SansSerif Regular" size="27.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </Pane>
+                  <Pane prefHeight="270.0" prefWidth="20.0">
+                     <children>
+                        <Line endX="7.5" endY="260.0" startX="7.5" startY="5.0" strokeWidth="10.0">
+                           <stroke>
+                              <LinearGradient endX="1.0" endY="1.0">
+                                 <stops>
+                                    <Stop>
+                                       <color>
+                                          <Color red="0.95686274766922" />
+                                       </color>
+                                    </Stop>
+                                    <Stop offset="0.05201342281879195">
+                                       <color>
+                                          <Color red="0.9254902005195618" green="0.5843137502670288" />
+                                       </color>
+                                    </Stop>
+                                    <Stop offset="0.18251759698805045">
+                                       <color>
+                                          <Color red="0.729411780834198" green="0.8705882430076599" blue="0.03529411926865578" />
+                                       </color>
+                                    </Stop>
+                                    <Stop offset="0.41946308724832215">
+                                       <color>
+                                          <Color red="0.25882354378700256" green="0.5764706134796143" blue="0.12941177189350128" />
+                                       </color>
+                                    </Stop>
+                                    <Stop offset="1.0">
+                                       <color>
+                                          <Color red="0.25882354378700256" green="0.5764706134796143" blue="0.12941177189350128" />
+                                       </color>
+                                    </Stop>
+                                 </stops>
+                              </LinearGradient>
+                           </stroke>
+                        </Line>
+                        <Line endX="7.5" endY="260.0" startX="7.5" startY="5.0" stroke="#00000080" strokeWidth="10.0" styleClass="vu-meter-mask" />
+                     </children>
+                  </Pane>
+               </children>
+            </HBox>
+         </children>
+      </HBox>
+      <TextField alignment="CENTER" editable="false" focusTraversable="false" layoutX="10.0" prefWidth="100.0" styleClass="scribble-strip" text="---------">
+         <VBox.margin>
+            <Insets top="25.0" />
+         </VBox.margin>
+         <font>
+            <Font name="Bona Nova SC Regular" size="13.0" />
+         </font>
+      </TextField>
+   </children>
+   <padding>
+      <Insets left="10.0" right="10.0" top="10.0" />
+   </padding>
+   <opaqueInsets>
+      <Insets />
+   </opaqueInsets>
+</VBox>
