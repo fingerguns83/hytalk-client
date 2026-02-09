@@ -1,5 +1,9 @@
 pipeline {
-    agent none
+    agent any
+
+    tools {
+        maven 'Maven-3.9'
+    }
 
     stages {
         stage('Build All Platforms') {
@@ -32,6 +36,7 @@ pipeline {
                 stage('Win AMD') {
                     agent { label 'windows && amd' }
                     steps {
+                        bat 'mvn -version'
                         bat 'mvn clean package jpackage:jpackage@win'
                     }
                     post {
@@ -44,6 +49,7 @@ pipeline {
                 //stage('Win ARM') {
                 //    agent { label 'windows && arm' }
                 //    steps {
+                //        bat 'mvn -version'
                 //        bat 'mvn clean package jpackage:jpackage@win'
                 //    }
                 //    post {
