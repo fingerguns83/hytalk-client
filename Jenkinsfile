@@ -5,7 +5,7 @@ pipeline {
         stage('Build All Platforms') {
             parallel {
 
-                stage('Mac AMD') {
+                /*stage('Mac AMD') {
                     agent { label 'mac && amd' }
                     steps {
                         sh 'mvn clean package jpackage:jpackage@mac'
@@ -27,7 +27,7 @@ pipeline {
                             archiveArtifacts artifacts: 'target/**/*', fingerprint: true
                         }
                     }
-                }
+                }*/
 
                 stage('Win AMD') {
                     agent { label 'windows && amd' }
@@ -41,7 +41,7 @@ pipeline {
                     }
                 }
 
-                stage('Win ARM') {
+                /*stage('Win ARM') {
                     agent { label 'windows && arm' }
                     steps {
                         bat 'mvn clean package jpackage:jpackage@win'
@@ -75,7 +75,7 @@ pipeline {
                             archiveArtifacts artifacts: 'target/**/*', fingerprint: true
                         }
                     }
-                }
+                }*/
             }
         }
     }
