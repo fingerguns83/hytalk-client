@@ -157,8 +157,20 @@
                     </execution>
                     <execution>
                         <id>win</id>
+                        <goals>
+                            <goal>jpackage</goal>
+                        </goals>
                         <configuration>
                             <icon>${project.basedir}/icons/icon.ico</icon>
+                            <name>Hytalk</name>
+                            <module>net.fg83.hytalkclient/net.fg83.hytalkclient.HytalkClientApplication</module>
+                            <vendor>FG Labs</vendor>
+                            <appVersion>${project.version}</appVersion>
+                            <description>Hytale proximity voice-chat client.</description>
+                            <winMenu>true</winMenu>
+                            <winDirChooser>true</winDirChooser>
+                            <winShortcut>true</winShortcut>
+                            <winUpgradeUuid>2944658e-9ad8-407d-b9d8-92edf39cdea6</winUpgradeUuid>
                         </configuration>
                     </execution>
                     <execution>
