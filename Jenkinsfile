@@ -1,8 +1,10 @@
+
 pipeline {
     agent any
 
     tools {
         maven 'Maven-3.9'
+        git
     }
 
     stages {
@@ -13,10 +15,12 @@ pipeline {
                 //    agent { label 'mac && amd' }
                 //    steps {
                 //        sh 'mvn clean package jpackage:jpackage@mac'
+                //        sh 'mkdir -p artifacts/mac-amd64'
+                //        sh 'cp -r target/* artifacts/mac-amd64/'
                 //    }
                 //    post {
                 //        success {
-                //            archiveArtifacts artifacts: 'target/**/*', fingerprint: true
+                //            archiveArtifacts artifacts: 'artifacts/mac-amd64/**/*', fingerprint: true
                 //        }
                 //    }
                 //}
@@ -25,10 +29,12 @@ pipeline {
                     agent { label 'mac && arm' }
                     steps {
                         sh 'mvn clean package jpackage:jpackage@mac'
+                        sh 'mkdir -p artifacts/mac-arm64'
+                        sh 'cp -r target/* artifacts/mac-arm64/'
                     }
                     post {
                         success {
-                            archiveArtifacts artifacts: 'target/**/*', fingerprint: true
+                            archiveArtifacts artifacts: 'artifacts/mac-arm64/**/*', fingerprint: true
                         }
                     }
                 }
@@ -38,10 +44,12 @@ pipeline {
                     steps {
                         bat 'mvn -version'
                         bat 'mvn clean package jpackage:jpackage@win'
+                        bat 'if not exist artifacts\\windows-amd64 mkdir artifacts\\windows-amd64'
+                        bat 'xcopy /E /I /Y target artifacts\\windows-amd64'
                     }
                     post {
                         success {
-                            archiveArtifacts artifacts: 'target/**/*', fingerprint: true
+                            archiveArtifacts artifacts: 'artifacts/windows-amd64/**/*', fingerprint: true
                         }
                     }
                 }
@@ -51,34 +59,40 @@ pipeline {
                     steps {
                         bat 'mvn -version'
                         bat 'mvn clean package jpackage:jpackage@win'
+                        bat 'if not exist artifacts\\windows-arm64 mkdir artifacts\\windows-arm64'
+                        bat 'xcopy /E /I /Y target artifacts\\windows-arm64'
                     }
                     post {
                         success {
-                            archiveArtifacts artifacts: 'target/**/*', fingerprint: true
+                            archiveArtifacts artifacts: 'artifacts/windows-arm64/**/*', fingerprint: true
                         }
                     }
                 }
 
-                //stage('Linux AMD') {
-                //    agent { label 'linux && amd' }
-                //    steps {
-                //        sh 'mvn clean package jpackage:jpackage@linux'
-                //    }
-                //    post {
-                //        success {
-                //            archiveArtifacts artifacts: 'target/**/*', fingerprint: true
-                //        }
-                //    }
-                //}
+                stage('Linux AMD') {
+                    agent { label 'linux && amd' }
+                    steps {
+                        sh 'mvn clean package jpackage:jpackage@linux'
+                        sh 'mkdir -p artifacts/linux-amd64'
+                        sh 'cp -r target/* artifacts/linux-amd64/'
+                    }
+                    post {
+                        success {
+                            archiveArtifacts artifacts: 'artifacts/linux-amd64/**/*', fingerprint: true
+                        }
+                    }
+                }
 
                 stage('Linux ARM') {
                     agent { label 'linux && arm' }
                     steps {
                         sh 'mvn clean package jpackage:jpackage@linux'
+                        sh 'mkdir -p artifacts/linux-arm64'
+                        sh 'cp -r target/* artifacts/linux-arm64/'
                     }
                     post {
                         success {
-                            archiveArtifacts artifacts: 'target/**/*', fingerprint: true
+                            archiveArtifacts artifacts: 'artifacts/linux-arm64/**/*', fingerprint: true
                         }
                     }
                 }
