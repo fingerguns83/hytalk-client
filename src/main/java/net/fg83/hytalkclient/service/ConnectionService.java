@@ -3,6 +3,7 @@ package net.fg83.hytalkclient.service;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.fg83.hytalkclient.model.ApplicationState;
+import net.fg83.hytalkclient.model.VoiceChatPlayer;
 import net.fg83.hytalkclient.network.ControlSocketConnection;
 import net.fg83.hytalkclient.util.message.MessageType;
 
@@ -82,10 +83,15 @@ public class ConnectionService {
             }
             case READY -> {
                 JsonObject dataObj = data.getAsJsonObject();
-                applicationState.setPlayerName(dataObj.get("player_name").getAsString());
-                applicationState.setPlayerId(UUID.fromString(dataObj.get("player_uuid").getAsString()));
+                applicationState.setPlayer(new VoiceChatPlayer(
+                        dataObj.get("player_name").getAsString(),
+                        UUID.fromString(dataObj.get("player_uuid").getAsString())
+                ));
             }
-            case POSITION_DATA, GROUP_DATA, PING, PONG -> {
+            case POSITION_DATA -> {
+
+            }
+            case GROUP_DATA, PING, PONG -> {
                 // Handle other message types as needed
             }
             case null -> {

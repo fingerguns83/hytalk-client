@@ -168,6 +168,7 @@
                             <appVersion>${project.version}</appVersion>
                             <description>Hytale proximity voice-chat client.</description>
                             <winMenu>true</winMenu>
+                            <winMenuGroup>Hytalk</winMenuGroup>
                             <winDirChooser>true</winDirChooser>
                             <winShortcut>true</winShortcut>
                             <winUpgradeUuid>2944658e-9ad8-407d-b9d8-92edf39cdea6</winUpgradeUuid>
