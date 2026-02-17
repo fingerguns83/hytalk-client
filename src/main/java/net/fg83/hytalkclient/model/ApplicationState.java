@@ -1,50 +1,69 @@
 package net.fg83.hytalkclient.model;
 
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+
+import net.fg83.hytalkclient.service.*;
 
 public class ApplicationState {
-    private String clientPairingCode;
-    private VoiceChatPlayer clientPlayer;
-    private Map<UUID, VoiceChatPlayer> voiceChatPlayers = new HashMap<>();
-    private Instant pairingExpiration;
+    private ViewNavigationManager viewNavigationManager;
+    private ConnectionManager connectionManager = new ConnectionManager(this);
+    private PairingManager pairingManager = new PairingManager();
+    private PlayerManager playerManager = new PlayerManager();
+    private MixerManager mixerManager = new MixerManager();
+    private AudioManager audioManager = new AudioManager();
+    private ErrorDialogManager errorDialogManager = new ErrorDialogManager();
+
+    private AudioIOManager.AudioDevice selectedInputDevice;
+    private AudioIOManager.AudioDevice selectedOutputDevice;
+
 
     public ApplicationState() { }
 
-    public String getPairingCode() { return clientPairingCode; }
-    public void setPairingCode(String pairingCode) { this.clientPairingCode = pairingCode; }
-    public void setPlayer(VoiceChatPlayer player) {
-        this.clientPlayer = player;
-        this.clientPlayer.setLocalUser(true);
+    public void setViewNavigationManager(ViewNavigationManager viewNavigationManager) {
+        this.viewNavigationManager = viewNavigationManager;
     }
-    public VoiceChatPlayer getPlayer(){
-        return this.clientPlayer;
+    public ViewNavigationManager getViewNavigationManager() {
+        return viewNavigationManager;
     }
-    public String getPlayerName() { return clientPlayer.getPlayerName(); }
-    public Instant getPairingExpiration() { return pairingExpiration; }
-    public void setPairingExpiration(Instant expiration) {this.pairingExpiration = expiration;}
 
-    public void updateVoiceChatPlayers(Map<UUID, VoiceChatPlayer> newVoiceChatPlayers) {
-        newVoiceChatPlayers.forEach((uuid, player) -> {
-            if (this.voiceChatPlayers.containsKey(uuid)) {
-                this.voiceChatPlayers.get(uuid).setPlayerLocation(player.getPlayerLocation());
-            }
-            else {
-                if (player.getPlayerId().equals(this.clientPlayer.getPlayerId())) {
-                    this.clientPlayer.setPlayerLocation(player.getPlayerLocation());
-                }
-                else {
-                    this.voiceChatPlayers.put(uuid, player);
-                }
-            }
-        });
-        this.voiceChatPlayers.forEach((uuid, player) -> {
-            if (!newVoiceChatPlayers.containsKey(uuid)) {
-                this.voiceChatPlayers.remove(uuid);
-            }
-        });
+    public void setConnectionManager(ConnectionManager connectionManager) {
+        this.connectionManager = connectionManager;
     }
-    public Map<UUID, VoiceChatPlayer> getVoiceChatPlayers() { return voiceChatPlayers; }
+    public ConnectionManager getConnectionManager() {
+        return connectionManager;
+    }
+
+    public void setPairingManager(PairingManager pairingManager) {
+        this.pairingManager = pairingManager;
+    }
+    public PairingManager getPairingManager() {
+        return pairingManager;
+    }
+
+    public void setAudioManager(AudioManager audioManager) {
+        this.audioManager = audioManager;
+    }
+    public AudioManager getAudioManager() {
+        return audioManager;
+    }
+
+    public void setMixerManager(MixerManager mixerManager) {
+        this.mixerManager = mixerManager;
+    }
+    public MixerManager getMixerManager() {
+        return mixerManager;
+    }
+
+    public void setPlayerManager(PlayerManager playerManager) {
+        this.playerManager = playerManager;
+    }
+    public PlayerManager getPlayerManager() {
+        return playerManager;
+    }
+
+    public void setErrorDialogManager(ErrorDialogManager errorDialogManager) {
+        this.errorDialogManager = errorDialogManager;
+    }
+    public ErrorDialogManager getErrorDialogManager() {
+        return errorDialogManager;
+    }
 }

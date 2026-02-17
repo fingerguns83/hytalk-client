@@ -1,7 +1,6 @@
-package net.fg83.hytalkclient.service;
+package net.fg83.hytalkclient.message;
 
 import com.google.gson.JsonElement;
-import net.fg83.hytalkclient.util.message.MessageType;
 
 public class MessageEvent {
     private final MessageType type;

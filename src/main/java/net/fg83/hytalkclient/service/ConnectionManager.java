@@ -1,11 +1,17 @@
 package net.fg83.hytalkclient.service;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.fg83.hytalkclient.util.AppConstants;
+import net.fg83.hytalkclient.util.WindowDimensions;
 import net.fg83.hytalkclient.model.ApplicationState;
 import net.fg83.hytalkclient.model.VoiceChatPlayer;
 import net.fg83.hytalkclient.network.ControlSocketConnection;
-import net.fg83.hytalkclient.util.message.MessageType;
+import net.fg83.hytalkclient.model.Location;
+import net.fg83.hytalkclient.message.MessageBuilder;
+import net.fg83.hytalkclient.message.MessageEvent;
+import net.fg83.hytalkclient.message.MessageType;
 
 import java.io.IOException;
 import java.net.URI;
@@ -18,34 +24,30 @@ import java.util.function.Consumer;
 
 import static net.fg83.hytalkclient.HytalkClientApplication.getView;
 
-public class ConnectionService {
+public class ConnectionManager {
     private final ApplicationState applicationState;
-    private final ErrorDialogService errorDialogService;
     private final List<Consumer<MessageEvent>> messageHandlers = new ArrayList<>();
-    private final ViewNavigationService viewNavigationService;
 
     private ControlSocketConnection connection;
 
-    public ConnectionService(ApplicationState applicationState, ViewNavigationService viewNavigationService, ErrorDialogService errorDialogService) {
+    public ConnectionManager(ApplicationState applicationState) {
         this.applicationState = applicationState;
-        this.viewNavigationService = viewNavigationService;
-        this.errorDialogService = errorDialogService;
     }
 
     public void connect(String serverAddress, int serverPort) {
         try {
             URI serverURI = new URI("ws://" + serverAddress + ":" + serverPort);
-            connection = new ControlSocketConnection(serverURI, this::handleMessage, this::handleError, this::handleClose);
+            connection = new ControlSocketConnection(serverURI, this::handleOpen, this::handleMessage, this::handleError, this::handleClose);
             connection.connect();
         } catch (URISyntaxException e) {
-            errorDialogService.showError("Connection Error", "Invalid server address: " + e.getMessage());
+            applicationState.getErrorDialogManager().showError("Connection Error", "Invalid server address: " + e.getMessage());
         }
 
         try {
-            viewNavigationService.navigateToView(getView("subviews/ConnectionView.fxml"), null);
+            applicationState.getViewNavigationManager().navigateToView(getView("subviews/ConnectionView.fxml"), null);
         }
         catch (IOException e) {
-            errorDialogService.showError("View Error", "Failed to load view: " + e.getMessage());
+            applicationState.getErrorDialogManager().showError("View Error", "Failed to load view: " + e.getMessage());
         }
     }
 
@@ -70,25 +72,39 @@ public class ConnectionService {
     }
 
     // Callback from ControlSocketConnection
+    private void handleOpen(Void ignored){
+        JsonObject data = new JsonObject();
+        data.addProperty("client_version", AppConstants.VERSION);
+        connection.send(MessageBuilder.build(MessageType.INFO, data));
+    }
+
     private void handleMessage(MessageType type, JsonElement data) {
         // Update application state based on message type
         switch (type) {
+            case INFO -> {
+                JsonObject dataObj = data.getAsJsonObject();
+                System.out.println("Server version: " + dataObj.get("server_version").getAsString());
+            }
             case PAIR -> {
                 JsonObject dataObj = data.getAsJsonObject();
                 String code = dataObj.get("code").getAsString();
-                applicationState.setPairingCode(code);
-                applicationState.setPairingExpiration(
+                applicationState.getPairingManager().setPairingCode(code);
+                applicationState.getPairingManager().setPairingExpiration(
                         Instant.ofEpochSecond(Long.parseLong(dataObj.get("expires_at").getAsString()))
                 );
             }
             case READY -> {
                 JsonObject dataObj = data.getAsJsonObject();
-                applicationState.setPlayer(new VoiceChatPlayer(
+                applicationState.getPlayerManager().setClientPlayer(new VoiceChatPlayer(
                         dataObj.get("player_name").getAsString(),
-                        UUID.fromString(dataObj.get("player_uuid").getAsString())
+                        UUID.fromString(dataObj.get("player_uuid").getAsString()),
+                        true
                 ));
+                connection.send(MessageBuilder.build(MessageType.ACK, new JsonObject()));
             }
             case POSITION_DATA -> {
+                JsonArray dataArray = data.getAsJsonArray();
+                applicationState.getPlayerManager().updateVoiceChatPlayers(Location.parsePlayerLocations(dataArray));
 
             }
             case GROUP_DATA, PING, PONG -> {
@@ -106,20 +122,25 @@ public class ConnectionService {
     }
 
     private void handleError(Exception ex) {
-        errorDialogService.showError("Connection Error", "An error occurred: " + ex.getMessage());
+        applicationState.getErrorDialogManager().showError("Connection Error", "An error occurred: " + ex.getMessage());
     }
 
     private void handleClose(int code, String reason, boolean remote) {
         String source = remote ? "server" : "client";
-        errorDialogService.showError(
+        applicationState.getErrorDialogManager().showError(
                 "Connection Closed",
                 String.format("Connection closed by %s\nCode: %d\nReason: %s", source, code, reason)
         );
         try {
-            viewNavigationService.navigateToView(getView("subviews/ConnectionView.fxml"), null);
+            applicationState.getViewNavigationManager().navigateToView(
+                    getView("subviews/ConnectionView.fxml"),
+                    null,
+                    WindowDimensions.CONNECTION_WIDTH,
+                    WindowDimensions.CONNECTION_HEIGHT
+            );
         }
         catch (IOException e) {
-            errorDialogService.showError("View Error", "Failed to load view: " + e.getMessage());
+            applicationState.getErrorDialogManager().showError("View Error", "Failed to load view: " + e.getMessage());
         }
     }
 }

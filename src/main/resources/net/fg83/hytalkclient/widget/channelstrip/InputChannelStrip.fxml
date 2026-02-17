@@ -2,7 +2,8 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.effect.ColorAdjust?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
@@ -14,12 +15,15 @@
 <?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.Font?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="120.0" style="-fx-background-color: #353434;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.fg83.hytalkclient.ui.controller.ChannelStripController">
+<VBox fx:id="INPUT_CHANNEL_STRIP_ROOT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="120.0" style="-fx-background-color: #353434; -fx-border-color: transparent #131313 transparent transparent; -fx-border-width: 2;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.fg83.hytalkclient.ui.controller.channelstrip.InputChannelStripController">
    <children>
-      <HBox prefHeight="50.0" prefWidth="100.0" />
+      <HBox fx:id="CHANNEL_BUTTON_HOLDER" alignment="CENTER" maxHeight="55.0" maxWidth="120.0" prefHeight="55.0" prefWidth="120.0">
+         <VBox.margin>
+            <Insets bottom="5.0" />
+         </VBox.margin></HBox>
       <HBox prefHeight="270.0" prefWidth="100.0">
          <children>
-            <Pane onScroll="#onMouseScroll" prefHeight="270.0" prefWidth="60.0">
+            <Pane onScroll="#onMouseScrollFader" prefHeight="270.0" prefWidth="60.0">
                <children>
                   <Line endX="48.0" layoutY="41.0" stroke="#bcbcbc" />
                   <Line endX="48.0" layoutY="77.0" stroke="#bcbcbc" />
@@ -28,10 +32,17 @@
                   <Line endX="48.0" layoutY="188.0" stroke="#bcbcbc" />
                   <Line endX="48.0" layoutY="223.5" stroke="#bcbcbc" />
                   <Line endX="25.0" endY="236.0" startX="25.0" startY="26.0" stroke="#131313" strokeLineCap="ROUND" strokeWidth="5.0" />
-                  <ImageView fitWidth="40.0" layoutX="5.0" layoutY="36.4" onMouseClicked="#onMouseClick" onMouseDragged="#onMouseDrag" onMousePressed="#onMousePressed" onMouseReleased="#onMouseReleased" pickOnBounds="true" preserveRatio="true" styleClass="fader-cap">
+                  <ImageView fitWidth="40.0" layoutX="5.0" layoutY="36.4" onMouseClicked="#onMouseClickFader" onMouseDragged="#onMouseDragFader" onMousePressed="#onMousePressedFader" onMouseReleased="#onMouseReleasedFader" pickOnBounds="true" preserveRatio="true" styleClass="fader-cap">
                      <image>
-                        <Image url="@../../../../assets/images/fader.png" />
+                        <Image url="@../../../../../assets/images/fader.png" />
                      </image>
+                     <effect>
+                        <ColorAdjust hue="-1.0" saturation="0.76">
+                           <input>
+                              <ColorAdjust saturation="-1.0" />
+                           </input>
+                        </ColorAdjust>
+                     </effect>
                   </ImageView>
                </children>
             </Pane>
@@ -117,19 +128,19 @@
                </children>
             </HBox>
          </children>
-      </HBox>
-      <TextField alignment="CENTER" editable="false" focusTraversable="false" layoutX="10.0" prefWidth="100.0" styleClass="scribble-strip" text="---------">
          <VBox.margin>
-            <Insets top="25.0" />
+            <Insets left="10.0" right="10.0" />
+         </VBox.margin>
+      </HBox>
+      <MenuButton fx:id="INPUT_DEVICE_SELECTOR" prefHeight="27.0" prefWidth="100.0" text="Input">
+         <VBox.margin>
+            <Insets left="10.0" right="10.0" top="25.0" />
          </VBox.margin>
          <font>
             <Font name="Bona Nova SC Regular" size="13.0" />
          </font>
-      </TextField>
+      </MenuButton>
    </children>
-   <padding>
-      <Insets left="10.0" right="10.0" top="10.0" />
-   </padding>
    <opaqueInsets>
       <Insets />
    </opaqueInsets>

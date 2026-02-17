@@ -1,6 +1,7 @@
-package net.fg83.hytalkclient.util.message;
+package net.fg83.hytalkclient.message;
 
 public enum MessageType {
+    INFO("info"),
     PAIR("pair"),
     ACK("ack"),
     READY("ready"),

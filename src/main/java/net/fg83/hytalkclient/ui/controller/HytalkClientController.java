@@ -2,16 +2,13 @@ package net.fg83.hytalkclient.ui.controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.layout.AnchorPane;
-import javafx.stage.Stage;
 
-import net.fg83.hytalkclient.config.AppConfig;
+import javafx.scene.layout.Pane;
+import net.fg83.hytalkclient.service.*;
+import net.fg83.hytalkclient.ui.event.*;
+import net.fg83.hytalkclient.util.WindowDimensions;
 import net.fg83.hytalkclient.model.ApplicationState;
-import net.fg83.hytalkclient.service.ConnectionService;
-import net.fg83.hytalkclient.service.ErrorDialogService;
-import net.fg83.hytalkclient.service.ViewNavigationService;
-import net.fg83.hytalkclient.ui.event.ConnectionSetupEvent;
-import net.fg83.hytalkclient.ui.event.ViewEvent;
-import net.fg83.hytalkclient.util.message.MessageType;
+import net.fg83.hytalkclient.message.MessageType;
 
 import java.io.IOException;
 
@@ -19,11 +16,8 @@ import static net.fg83.hytalkclient.HytalkClientApplication.getView;
 
 public class HytalkClientController {
     // Dependencies
-    private ApplicationState state;
-    private ViewNavigationService viewNavigationService;
-    private ConnectionService connectionService;
-    private ErrorDialogService errorDialogService;
-    private Stage stage;
+    private ApplicationState applicationState;
+
 
     @FXML
     private AnchorPane CLIENT_ROOT;
@@ -33,26 +27,22 @@ public class HytalkClientController {
         // FXML initialization - nothing yet
     }
 
-    public void setup(
-            ApplicationState applicationState,
-            ViewNavigationService viewNavigationService,
-            ConnectionService connectionService,
-            ErrorDialogService errorDialogService,
-            Stage stage
-    ) {
-        this.state = applicationState;
-        this.viewNavigationService = viewNavigationService;
-        this.connectionService = connectionService;
-        this.errorDialogService = errorDialogService;
-        this.stage = stage;
+
+
+    public void setup(ApplicationState applicationState) {
+        this.applicationState = applicationState;
 
         setupViewEventHandlers();
-        setupLogicEventHandlers();
+        setupUtilityEventHandlers();
         setupConnectionMessageHandlers();
+        setupPairingEventHandlers();
+        setupAudioControlEventHandlers();
 
         // Show initial launch view
         CLIENT_ROOT.fireEvent(new ViewEvent(ViewEvent.SHOW_LAUNCH_VIEW));
     }
+
+
 
     /* VIEW EVENT HANDLERS */
     private void setupViewEventHandlers() {
@@ -67,7 +57,7 @@ public class HytalkClientController {
         try {
             setupMethod.run();
         } catch (IOException e) {
-            errorDialogService.showError("View Error", "Failed to load view: " + e.getMessage());
+            applicationState.getErrorDialogManager().showError("View Error", "Failed to load view: " + e.getMessage());
         }
     }
 
@@ -76,62 +66,82 @@ public class HytalkClientController {
         void run() throws IOException;
     }
 
+
+
     /* VIEW SETUP METHODS */
     private void setupLaunchView() throws IOException {
         System.out.println("Displaying launch view");
 
-        LaunchController controller = viewNavigationService.navigateToView(
+        LaunchController controller = applicationState.getViewNavigationManager().navigateToView(
                 getView("subviews/LaunchView.fxml"),
                 null
         );
 
-        setDimensions(AppConfig.WindowDimensions.LAUNCH_WIDTH, AppConfig.WindowDimensions.LAUNCH_HEIGHT);
+        applicationState.getViewNavigationManager().setDimensions(WindowDimensions.LAUNCH_WIDTH, WindowDimensions.LAUNCH_HEIGHT);
+
         controller.run();
     }
 
     private void setupConnectionView() throws IOException {
         System.out.println("Displaying connection view");
 
-        viewNavigationService.navigateToView(
+        applicationState.getViewNavigationManager().navigateToView(
                 getView("subviews/ConnectionView.fxml"),
                 null
         );
 
-        setDimensions(AppConfig.WindowDimensions.CONNECTION_WIDTH, AppConfig.WindowDimensions.CONNECTION_HEIGHT);
+        applicationState.getViewNavigationManager().setDimensions(WindowDimensions.CONNECTION_WIDTH, WindowDimensions.CONNECTION_HEIGHT);
     }
 
     private void setupConnectionPendingView() throws IOException {
         System.out.println("Displaying connection pending view");
 
-        viewNavigationService.navigateToView(
+        applicationState.getViewNavigationManager().navigateToView(
                 getView("subviews/ConnectionPendingView.fxml"),
                 null
         );
+
+        applicationState.getViewNavigationManager().setDimensions(WindowDimensions.CONNECTION_WIDTH, WindowDimensions.CONNECTION_HEIGHT);
     }
 
     private void setupPairingView() throws IOException {
         System.out.println("Displaying pairing view");
 
-        PairingController controller = viewNavigationService.navigateToView(
-                getView("subviews/PairingView.fxml"),
-                pairingController -> pairingController.setup(state)
+        PairingController controller = applicationState.getViewNavigationManager().navigateToView(
+                getView("subviews/PairingView.fxml"), pairingController -> {
+                    pairingController.setup(
+                            applicationState.getPairingManager().getPairingCode(),
+                            applicationState.getPairingManager().getPairingExpiration()
+                    );
+                }
         );
+
+        applicationState.getViewNavigationManager().setDimensions(WindowDimensions.PAIRING_WIDTH, WindowDimensions.PAIRING_HEIGHT);
     }
 
     private void setupMixerView() throws IOException {
         System.out.println("Displaying mixer view");
 
-        MixerController controller = viewNavigationService.navigateToView(
+        MixerController controller = applicationState.getViewNavigationManager().navigateToView(
                 getView("subviews/MixerView.fxml"),
-                MixerController::initialize
+                mixerController -> mixerController.setup(applicationState.getPlayerManager())
         );
 
-        setDimensions(AppConfig.WindowDimensions.MIXER_WIDTH, AppConfig.WindowDimensions.MIXER_HEIGHT);
+        // Register resize listener
+        CLIENT_ROOT.addEventHandler(ResizeEvent.RESIZE_EVENT, e -> {
+            applicationState.getViewNavigationManager().setDimensions(e.getWidth(), e.getHeight());
+        });
+
+        applicationState.getViewNavigationManager().setDimensions(
+                WindowDimensions.CHANNEL_STRIP_WIDTH * 2,
+                WindowDimensions.MIXER_HEIGHT
+        );
     }
+
 
     /* CONNECTION MESSAGE HANDLERS */
     private void setupConnectionMessageHandlers() {
-        connectionService.addMessageHandler(messageEvent -> {
+        applicationState.getConnectionManager().addMessageHandler(messageEvent -> {
             MessageType type = messageEvent.getType();
 
             switch (type) {
@@ -140,15 +150,12 @@ public class HytalkClientController {
                     CLIENT_ROOT.fireEvent(new ViewEvent(ViewEvent.SHOW_PAIRING_VIEW));
                 }
                 case READY -> {
-                    // Server confirmed pairing, show mixer view
                     CLIENT_ROOT.fireEvent(new ViewEvent(ViewEvent.SHOW_MIXER_VIEW));
                 }
                 case POSITION_DATA -> {
-                    // Handle position updates (if needed in future)
                     System.out.println("Received position data");
                 }
                 case PING -> {
-                    // Handle ping (could respond with PONG)
                     System.out.println("Received ping");
                 }
                 default -> {
@@ -158,43 +165,74 @@ public class HytalkClientController {
         });
     }
 
-    /* LOGIC EVENT HANDLERS */
-    private void setupLogicEventHandlers() {
+
+    /* PAIRING EVENT HANDLERS */
+    private void setupPairingEventHandlers() {
+        CLIENT_ROOT.addEventHandler(PairingEvent.PAIRING_EXPIRED, e -> handlePairingExpired());
+        CLIENT_ROOT.addEventHandler(PairingEvent.PAIRING_CANCELLED, e -> handlePairingCancelled());
+    }
+
+    private void handlePairingExpired() {
+        System.out.println("Pairing expired");
+        applicationState.getPairingManager().setPairingCode(null);
+        applicationState.getPairingManager().setPairingExpiration(null);
+        try {
+            setupConnectionView();
+        } catch (IOException e) {
+            applicationState.getErrorDialogManager().showError("View Error", "Failed to load connection view");
+        }
+    }
+
+    private void handlePairingCancelled() {
+        System.out.println("Pairing cancelled by user");
+        applicationState.getConnectionManager().disconnect();
+        applicationState.getPairingManager().setPairingCode(null);
+        applicationState.getPairingManager().setPairingExpiration(null);
+        try {
+            setupConnectionView();
+        } catch (IOException e) {
+            applicationState.getErrorDialogManager().showError("View Error", "Failed to load connection view");
+        }
+    }
+
+    /* AUDIO CONTROL EVENT HANDLERS */
+    private void setupAudioControlEventHandlers() {
+        CLIENT_ROOT.addEventHandler(GainChangeEvent.PLAYER_GAIN_CHANGE_EVENT, this::handlePlayerGainChange);
+        CLIENT_ROOT.addEventHandler(GainChangeEvent.INPUT_GAIN_CHANGE_EVENT, this::handleInputGainChange);
+        CLIENT_ROOT.addEventHandler(GainChangeEvent.OUTPUT_GAIN_CHANGE_EVENT, this::handleOutputGainChange);
+    }
+
+    private void handlePlayerGainChange(GainChangeEvent event) {
+        System.out.println("Gain change event received: " + event.getPlayerUUID());
+        applicationState.getPlayerManager().getVoiceChatPlayers().get(event.getPlayerUUID()).setGain((float) (event.getGainPercentage() * 1.25F));
+    }
+    private void handleInputGainChange(GainChangeEvent event){
+
+    }
+    private void handleOutputGainChange(GainChangeEvent event){
+    }
+
+
+
+    /* UTILITY EVENT HANDLERS */
+    private void setupUtilityEventHandlers() {
         CLIENT_ROOT.addEventHandler(ConnectionSetupEvent.CONNECTION_SETUP_EVENT, this::handleConnectionSetup);
+        CLIENT_ROOT.addEventHandler(ResizeEvent.RESIZE_EVENT, this::handleResize);
     }
 
     private void handleConnectionSetup(ConnectionSetupEvent event) {
         System.out.println("Attempting connection to " + event.getServerAddress() + ":" + event.getServerPort());
 
-        // Show connection pending view while connecting
         CLIENT_ROOT.fireEvent(new ViewEvent(ViewEvent.SHOW_CONNECTION_PENDING_VIEW));
 
-        // Attempt connection (ConnectionService will handle callbacks)
-        connectionService.connect(event.getServerAddress(), event.getServerPort());
+        applicationState.getConnectionManager().connect(event.getServerAddress(), event.getServerPort());
     }
+
+    private void handleResize(ResizeEvent event) {
+        applicationState.getViewNavigationManager().setDimensions(event.getWidth(), event.getHeight());
+    }
+
+
 
     /* UTILITY METHODS */
-    private void setDimensions(double width, double height) {
-        javafx.application.Platform.runLater(() -> {
-            if (stage != null) {
-                double currentSceneWidth = stage.getScene().getWidth();
-                double currentSceneHeight = stage.getScene().getHeight();
-                double currentStageWidth = stage.getWidth();
-                double currentStageHeight = stage.getHeight();
-
-                double decorationWidth = currentStageWidth - currentSceneWidth;
-                double decorationHeight = currentStageHeight - currentSceneHeight;
-
-                stage.setMinWidth(0);
-                stage.setMinHeight(0);
-                stage.setMaxWidth(Double.MAX_VALUE);
-                stage.setMaxHeight(Double.MAX_VALUE);
-
-                stage.setWidth(width + decorationWidth);
-                stage.setHeight(height + decorationHeight);
-
-                stage.centerOnScreen();
-            }
-        });
-    }
 }

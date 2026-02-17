@@ -1,13 +1,10 @@
 package net.fg83.hytalkclient.ui.controller;
 
 import javafx.animation.AnimationTimer;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
-import net.fg83.hytalkclient.HytalkClientApplication;
-import net.fg83.hytalkclient.config.AppConfig;
+import net.fg83.hytalkclient.util.AppConstants;
 import net.fg83.hytalkclient.ui.event.ViewEvent;
 
 import java.io.IOException;
@@ -21,7 +18,7 @@ public class LaunchController {
 
     @FXML
     private void initialize() {
-        ((Label) LAUNCH_ROOT.lookup("#Version-Info")).setText("Hytalk Client " + AppConfig.VERSION);
+        ((Label) LAUNCH_ROOT.lookup("#Version-Info")).setText("Hytalk Client " + AppConstants.VERSION);
     }
 
     public void run() throws IOException {

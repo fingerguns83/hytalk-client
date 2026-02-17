@@ -17,6 +17,9 @@
         <appMainClass>net.fg83.hytalkclient.HytalkClientApplication</appMainClass>
     </properties>
 
+    <repositories>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>org.openjfx</groupId>

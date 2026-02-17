@@ -1,17 +1,13 @@
 package net.fg83.hytalkclient.model;
 
-import javafx.scene.layout.VBox;
-import net.fg83.hytalkclient.util.Location;
-
 import java.util.UUID;
 
 public class VoiceChatPlayer {
-    private VBox channelStrip;
-
     private boolean isLocalUser = false;
 
     private String playerName;
     private UUID playerUUID;
+    private float gain = 1.0f;
 
     private Location playerLocation;
 
@@ -19,12 +15,13 @@ public class VoiceChatPlayer {
         this.playerName = playerName;
         this.playerUUID = playerUUID;
     }
+    public VoiceChatPlayer(String playerName, UUID playerUUID, boolean isLocalUser) {
+        this(playerName, playerUUID);
+        this.isLocalUser = isLocalUser;
+    }
 
     public void setLocalUser(boolean localUser) {
         isLocalUser = localUser;
-    }
-    public void setChannelStrip(VBox channelStrip) {
-        this.channelStrip = channelStrip;
     }
     public void setPlayerLocation(Location playerLocation) {
         this.playerLocation = playerLocation;
@@ -39,9 +36,6 @@ public class VoiceChatPlayer {
     public boolean isLocalUser() {
         return isLocalUser;
     }
-    public VBox getChannelStrip() {
-        return channelStrip;
-    }
     public Location getPlayerLocation() {
         return playerLocation;
     }
@@ -49,4 +43,6 @@ public class VoiceChatPlayer {
     public double calculateDistance(Location testLocation){
         return Location.calculateDistance(playerLocation, testLocation);
     }
+    public float getGain() { return gain; }
+    public void setGain(float gain) { this.gain = gain; }
 }

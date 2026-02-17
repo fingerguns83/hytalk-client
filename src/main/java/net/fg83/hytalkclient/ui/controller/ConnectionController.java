@@ -6,6 +6,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import net.fg83.hytalkclient.ui.event.ConnectionSetupEvent;
 import net.fg83.hytalkclient.ui.event.ViewEvent;
+import net.fg83.hytalkclient.util.AppConstants;
 
 public class ConnectionController {
 
@@ -17,24 +18,27 @@ public class ConnectionController {
 
         String serverAddress = ((TextField) CONNECTION_ROOT.lookup("#server-address")).getText().trim();
         String serverPort = ((TextField) CONNECTION_ROOT.lookup("#server-control-port")).getText().trim();
-        if (serverPort.isBlank()){
-            serverPort = "5222";
-        }
         int serverPortInt;
-        try {
-            serverPortInt = Integer.parseInt(serverPort);
+        if (serverPort.isBlank()){
+            serverPortInt = AppConstants.DEFAULT_SERVER_PORT;
         }
-        catch (NumberFormatException e) {
-            System.out.println("Invalid port number");
-            return;
+        else {
+            try {
+                serverPortInt = Integer.parseInt(serverPort);
+            }
+            catch (NumberFormatException e) {
+                System.out.println("Invalid port number");
+                return;
+            }
+
         }
 
-        if (Integer.parseInt(serverPort) > 65535) {
+        if (serverPortInt > 65535) {
             System.out.println("Port number out of range");
         }
         else {
             System.out.println("Attempting connection to " + serverAddress + ":" + serverPort);
-            main.fireEvent(new ConnectionSetupEvent(serverAddress, Integer.parseInt(serverPort)));
+            main.fireEvent(new ConnectionSetupEvent(serverAddress, serverPortInt));
             main.fireEvent(new ViewEvent(ViewEvent.SHOW_CONNECTION_PENDING_VIEW));
         }
     }

@@ -4,7 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import javafx.application.Platform;
-import net.fg83.hytalkclient.util.message.MessageType;
+import net.fg83.hytalkclient.message.MessageType;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
@@ -23,17 +23,20 @@ import java.util.function.Consumer;
  */
 public class ControlSocketConnection extends WebSocketClient {
 
+    private final Consumer<Void> openCallback;
     private final BiConsumer<MessageType, JsonElement> messageCallback;
     private final Consumer<Exception> errorCallback;
     private final TriConsumer<Integer, String, Boolean> closeCallback;
 
     public ControlSocketConnection(
             URI serverURI,
+            Consumer<Void> openCallback,
             BiConsumer<MessageType, JsonElement> messageCallback,
             Consumer<Exception> errorCallback,
             TriConsumer<Integer, String, Boolean> closeCallback
     ) {
         super(serverURI);
+        this.openCallback = openCallback;
         this.messageCallback = messageCallback;
         this.errorCallback = errorCallback;
         this.closeCallback = closeCallback;
@@ -41,6 +44,13 @@ public class ControlSocketConnection extends WebSocketClient {
 
     @Override
     public void onOpen(ServerHandshake handshakedata) {
+        try{
+            Platform.runLater(() -> openCallback.accept(null));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+
         System.out.println("WebSocket connection opened");
     }
 

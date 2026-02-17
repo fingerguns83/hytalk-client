@@ -5,6 +5,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import net.fg83.hytalkclient.model.ApplicationState;
+import net.fg83.hytalkclient.ui.event.PairingEvent;
 import net.fg83.hytalkclient.ui.event.ViewEvent;
 
 import java.time.Instant;
@@ -15,36 +16,43 @@ public class PairingController {
     @FXML
     private Label PAIRING_CODE_LABEL;
 
-    private ApplicationState applicationState;
+    private Instant pairingExpiration;
+    private AnimationTimer expirationTimer;
 
-    @FXML
-    private void initialize() {
-        AnimationTimer timer = new AnimationTimer() {
+    public void setup(String pairingCode, Instant expiration) {
+        PAIRING_CODE_LABEL.setText(pairingCode);
+        this.pairingExpiration = expiration;
+        startExpirationTimer();
+    }
+
+    private void startExpirationTimer() {
+        if (expirationTimer != null) {
+            expirationTimer.stop();
+        }
+
+        expirationTimer = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                if (applicationState == null){
-                    return;
-                }
-                if (Instant.now().isAfter(applicationState.getPairingExpiration())){
+                if (Instant.now().isAfter(pairingExpiration)) {
                     this.stop();
-                    applicationState.setPairingCode(null);
-                    applicationState.setPairingExpiration(null);
-                    PAIRING_ROOT.fireEvent(new ViewEvent(ViewEvent.SHOW_CONNECTION_VIEW));
+                    PAIRING_ROOT.fireEvent(new PairingEvent(PairingEvent.PAIRING_EXPIRED));
                 }
             }
         };
-        timer.start();
+        expirationTimer.start();
     }
 
-    // Call this AFTER loading the FXML
-    public void setup(ApplicationState applicationState) {
-        this.applicationState = applicationState;
-        updateView();
+    @FXML
+    private void handleCancel() {
+        if (expirationTimer != null) {
+            expirationTimer.stop();
+        }
+        PAIRING_ROOT.fireEvent(new PairingEvent(PairingEvent.PAIRING_CANCELLED));
     }
 
-    private void updateView() {
-        if (PAIRING_CODE_LABEL != null && applicationState != null) {
-            PAIRING_CODE_LABEL.setText(applicationState.getPairingCode());
+    public void cleanup() {
+        if (expirationTimer != null) {
+            expirationTimer.stop();
         }
     }
 }

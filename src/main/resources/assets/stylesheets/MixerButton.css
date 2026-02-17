@@ -1,0 +1,53 @@
+/* Wrapper */
+.wrapper {
+    -fx-background-color: #353434;
+    -fx-background-radius: 5;
+    -fx-padding: 3;
+    -fx-effect: innershadow(gaussian, #131313, 5, 0.5, 0, 0);
+    -fx-alignment: center;
+}
+
+/* Main Button */
+.mixer-button {
+    /*-fx-background-color: transparent;*/
+    -fx-border-color: #131313;
+    -fx-border-width: 1;
+    -fx-border-radius: 3;
+    -fx-background-radius: 3;
+    -fx-cursor: hand;
+    -fx-background-color: linear-gradient(to bottom right, #3a3a3a 0%, #2f2f2f 100%);
+    /*-fx-background-size: 12 12;*/
+}
+
+/* Inner panel (replaces ::before) */
+.mixer-button-inner {
+    /*-fx-pref-width: 28;
+    -fx-pref-height: 28;*/
+    /*-fx-max-width: Infinity;
+    -fx-max-height: Infinity;*/
+    -fx-background-radius: 2;
+    -fx-background-color:
+            linear-gradient(#3a3a3a, #2f2f2f);
+    -fx-effect: innershadow(gaussian, #2f2f2f, 2, 0.5, -2, 2);
+    -fx-alignment: center;
+}
+
+/* Label */
+.mixer-button-label {
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-pref-height: 28;
+    -fx-pref-width: 28;
+}
+
+/* Pressed state */
+.mixer-button:pressed {
+    -fx-scale-x: 0.95;
+    -fx-scale-y: 0.95;
+}
+
+.mixer-button:pressed .mixer-button-inner {
+    -fx-background-color:
+            linear-gradient(#2f2f2f, #3a3a3a);
+    -fx-effect: innershadow(gaussian, #2f2f2f, 2, 0.5, -2, -2);
+}

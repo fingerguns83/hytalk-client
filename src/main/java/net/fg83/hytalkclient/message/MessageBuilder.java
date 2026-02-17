@@ -1,10 +1,9 @@
-package net.fg83.hytalkclient.util.message;
+package net.fg83.hytalkclient.message;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Map;
 
 public class MessageBuilder {
