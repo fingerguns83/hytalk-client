@@ -6,12 +6,11 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.*;
+import javafx.scene.shape.Line;
 import net.fg83.hytalkclient.service.AudioIOManager;
 import net.fg83.hytalkclient.ui.event.AudioDeviceEvent;
 import net.fg83.hytalkclient.ui.event.GainChangeEvent;
 import net.fg83.hytalkclient.util.AppConstants;
-
-import javax.sound.sampled.Line;
 
 import java.util.List;
 
@@ -31,6 +30,7 @@ public class OutputChannelStripController extends ChannelStripController{
         initializeDeviceSelector();
         initializeFaderCap();
         initializeFaderLocation();
+        initializeVUMeter();
     }
 
     @Override

@@ -12,6 +12,7 @@ import net.fg83.hytalkclient.service.event.PlayerChangeEvent;
 import net.fg83.hytalkclient.ui.controller.channelstrip.ChannelStripController;
 import net.fg83.hytalkclient.ui.controller.channelstrip.InputChannelStripController;
 import net.fg83.hytalkclient.ui.controller.channelstrip.OutputChannelStripController;
+import net.fg83.hytalkclient.ui.event.RegisterChannelControllerEvent;
 import net.fg83.hytalkclient.ui.event.ResizeEvent;
 import net.fg83.hytalkclient.util.WindowDimensions;
 
@@ -124,6 +125,8 @@ public class MixerController {
         controller.setRootId("CHANNEL-" + playerId);
         controller.setup();
 
+        MIXER_ROOT.fireEvent(new RegisterChannelControllerEvent(playerId, controller, false, false));
+
         return channelRoot;
     }
 
@@ -161,6 +164,7 @@ public class MixerController {
 
         INPUT_FADER = (Pane) channelRoot;
         MIXER_ROOT.getChildren().addFirst(channelRoot);
+        MIXER_ROOT.fireEvent(new RegisterChannelControllerEvent(null, inputController, true, false));
     }
 
     public void createMasterFader() throws IOException {
@@ -175,6 +179,7 @@ public class MixerController {
         MASTER_FADER = (Pane) channelRoot;
         MASTER_FADER.setLayoutX(MIXER_ROOT.getChildren().size() * WindowDimensions.CHANNEL_STRIP_WIDTH);
         MIXER_ROOT.getChildren().addLast(channelRoot);
+        MIXER_ROOT.fireEvent(new RegisterChannelControllerEvent(null, outputController, false, true));
     }
 
     // === Public API for Parent Controller ===

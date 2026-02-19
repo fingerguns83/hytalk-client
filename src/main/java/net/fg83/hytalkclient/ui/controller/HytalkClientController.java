@@ -3,14 +3,18 @@ package net.fg83.hytalkclient.ui.controller;
 import javafx.fxml.FXML;
 import javafx.scene.layout.AnchorPane;
 
-import javafx.scene.layout.Pane;
-import net.fg83.hytalkclient.service.*;
+import net.fg83.hytalkclient.ui.controller.channelstrip.ChannelStripController;
+import net.fg83.hytalkclient.ui.controller.channelstrip.InputChannelStripController;
+import net.fg83.hytalkclient.ui.controller.channelstrip.OutputChannelStripController;
 import net.fg83.hytalkclient.ui.event.*;
 import net.fg83.hytalkclient.util.WindowDimensions;
 import net.fg83.hytalkclient.model.ApplicationState;
 import net.fg83.hytalkclient.message.MessageType;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 import static net.fg83.hytalkclient.HytalkClientApplication.getView;
 
@@ -36,7 +40,7 @@ public class HytalkClientController {
         setupUtilityEventHandlers();
         setupConnectionMessageHandlers();
         setupPairingEventHandlers();
-        setupAudioControlEventHandlers();
+        setupMixerEventHandlers();
 
         // Show initial launch view
         CLIENT_ROOT.fireEvent(new ViewEvent(ViewEvent.SHOW_LAUNCH_VIEW));
@@ -136,6 +140,23 @@ public class HytalkClientController {
                 WindowDimensions.CHANNEL_STRIP_WIDTH * 2,
                 WindowDimensions.MIXER_HEIGHT
         );
+
+        try {
+
+            applicationState.getMixerManager().startMeterUpdates();
+        }
+        catch (Exception e) {
+            applicationState.getErrorDialogManager().showError("Audio Error", "Failed to start audio input: " + e.getMessage());
+        }
+        try {
+            applicationState.getAudioManager().startInput();
+            System.out.println("Started audio input for testing");
+        } catch (Exception e) {
+            applicationState.getErrorDialogManager().showError(
+                    "Audio Error",
+                    "Failed to start audio input: " + e.getMessage()
+            );
+        }
     }
 
 
@@ -195,11 +216,31 @@ public class HytalkClientController {
         }
     }
 
-    /* AUDIO CONTROL EVENT HANDLERS */
-    private void setupAudioControlEventHandlers() {
+    /* MIXER EVENT HANDLERS */
+
+    /* MIXER EVENT HANDLERS */
+    private void setupMixerEventHandlers() {
+        CLIENT_ROOT.addEventHandler(RegisterChannelControllerEvent.REGISTER_CHANNEL_CONTROLLER_EVENT, this::handleControllerRegistration);
+
         CLIENT_ROOT.addEventHandler(GainChangeEvent.PLAYER_GAIN_CHANGE_EVENT, this::handlePlayerGainChange);
         CLIENT_ROOT.addEventHandler(GainChangeEvent.INPUT_GAIN_CHANGE_EVENT, this::handleInputGainChange);
         CLIENT_ROOT.addEventHandler(GainChangeEvent.OUTPUT_GAIN_CHANGE_EVENT, this::handleOutputGainChange);
+
+        CLIENT_ROOT.addEventHandler(AudioDeviceEvent.INPUT_DEVICE_CHANGED, this::handleInputDeviceChange);
+        CLIENT_ROOT.addEventHandler(AudioDeviceEvent.OUTPUT_DEVICE_CHANGED, this::handleOutputDeviceChange);
+    }
+
+    private void handleControllerRegistration(RegisterChannelControllerEvent event) {
+        if (event.isInput()) {
+            applicationState.getMixerManager().setInputController((InputChannelStripController) event.getController());
+        }
+        else if (event.isOutput()) {
+            applicationState.getMixerManager().setOutputController((OutputChannelStripController) event.getController());
+
+        }
+        else {
+            applicationState.getMixerManager().addPlayerController(event.getPlayerUUID(), event.getController());
+        }
     }
 
     private void handlePlayerGainChange(GainChangeEvent event) {
@@ -210,6 +251,11 @@ public class HytalkClientController {
 
     }
     private void handleOutputGainChange(GainChangeEvent event){
+    }
+    private void handleInputDeviceChange(AudioDeviceEvent event){
+        applicationState.getAudioManager().getAudioIOManager().setSelectedInputDevice(event.getDevice());
+    }
+    private void handleOutputDeviceChange(AudioDeviceEvent event){
     }
 
 

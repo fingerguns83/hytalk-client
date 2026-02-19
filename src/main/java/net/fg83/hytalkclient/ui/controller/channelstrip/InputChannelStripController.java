@@ -8,14 +8,13 @@ import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.shape.Line;
 import net.fg83.hytalkclient.HytalkClientApplication;
 import net.fg83.hytalkclient.service.AudioIOManager;
 import net.fg83.hytalkclient.ui.controller.channelstrip.button.ButtonController;
 import net.fg83.hytalkclient.ui.event.AudioDeviceEvent;
 import net.fg83.hytalkclient.ui.event.GainChangeEvent;
 import net.fg83.hytalkclient.util.ButtonType;
-
-import javax.sound.sampled.Line;
 
 import java.awt.*;
 import java.io.IOException;
@@ -57,6 +56,7 @@ public class InputChannelStripController extends ChannelStripController {
         initializeFaderCap();
         initializeFaderLocation();
         initializeButtons();
+        initializeVUMeter();
     }
     @Override
     protected void initializeFaderCap() {

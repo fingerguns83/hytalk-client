@@ -15,7 +15,7 @@
     -fx-border-radius: 3;
     -fx-background-radius: 3;
     -fx-cursor: hand;
-    -fx-background-color: linear-gradient(to bottom right, #3a3a3a 0%, #2f2f2f 100%);
+    -fx-background-color: linear-gradient(to bottom right, #353434 0%, #2f2f2f 100%);
     /*-fx-background-size: 12 12;*/
 }
 
@@ -27,7 +27,7 @@
     -fx-max-height: Infinity;*/
     -fx-background-radius: 2;
     -fx-background-color:
-            linear-gradient(#3a3a3a, #2f2f2f);
+            linear-gradient(#353434, #2f2f2f);
     -fx-effect: innershadow(gaussian, #2f2f2f, 2, 0.5, -2, 2);
     -fx-alignment: center;
 }

@@ -1,21 +1,129 @@
 package net.fg83.hytalkclient.service;
 
-import javafx.scene.layout.Pane;
+import javafx.animation.AnimationTimer;
+import net.fg83.hytalkclient.audio.InputAudioStream;
+import net.fg83.hytalkclient.audio.OutputAudioStream;
+import net.fg83.hytalkclient.audio.PlayerAudioStream;
+import net.fg83.hytalkclient.ui.controller.channelstrip.ChannelStripController;
+import net.fg83.hytalkclient.ui.controller.channelstrip.InputChannelStripController;
+import net.fg83.hytalkclient.ui.controller.channelstrip.OutputChannelStripController;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
+/**
+ * MixerManager coordinates UI updates for the mixer.
+ *
+ * Responsibilities:
+ * - Link audio streams to channel strip controllers for metering
+ * - Update VU meters at 60fps
+ * - Pure UI coordination (no audio processing)
+ */
 public class MixerManager {
-    private Pane MIXER_ROOT;
 
-    public MixerManager(Pane mixerRoot) {
-        this.MIXER_ROOT = mixerRoot;
-    }
-    public MixerManager(){}
+    private final AudioManager audioManager;
 
-    public Pane getMixerRoot() {
-        return MIXER_ROOT;
-    }
-    public void setMixerRoot(Pane mixerRoot) {
-        this.MIXER_ROOT = mixerRoot;
+    // UI controllers
+    private InputChannelStripController inputController;
+    private OutputChannelStripController outputController;
+    private final Map<UUID, ChannelStripController> playerControllers = new HashMap<>();
+
+    // Meter update timer
+    private AnimationTimer meterTimer;
+    private boolean running = false;
+
+    public MixerManager(AudioManager audioManager) {
+        this.audioManager = audioManager;
     }
 
+    // === UI Controller Registration ===
+
+    public void setInputController(InputChannelStripController controller) {
+        this.inputController = controller;
+    }
+
+    public void setOutputController(OutputChannelStripController controller) {
+        this.outputController = controller;
+    }
+
+    public void addPlayerController(UUID playerId, ChannelStripController controller) {
+        playerControllers.put(playerId, controller);
+    }
+
+    public void removePlayerController(UUID playerId) {
+        playerControllers.remove(playerId);
+    }
+
+    // === Meter Updates ===
+
+    /**
+     * Start the meter update timer (60fps)
+     */
+    public void startMeterUpdates() {
+        if (running) {
+            return;
+        }
+
+        running = true;
+        meterTimer = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                updateAllMeters();
+            }
+        };
+        meterTimer.start();
+
+        System.out.println("MixerManager: Started meter updates");
+    }
+
+    /**
+     * Stop the meter update timer
+     */
+    public void stopMeterUpdates() {
+        running = false;
+        if (meterTimer != null) {
+            meterTimer.stop();
+            meterTimer = null;
+        }
+
+        System.out.println("MixerManager: Stopped meter updates");
+    }
+
+    /**
+     * Update all VU meters from their respective audio streams
+     */
+    private void updateAllMeters() {
+        // Update input meter
+        InputAudioStream inputStream = audioManager.getInputStream();
+        if (inputController != null && inputStream != null && inputStream.isRunning()) {
+            float level = inputStream.getCurrentLevel();
+            inputController.updateMeter(level);
+        }
+
+        // Update player meters
+        playerControllers.forEach((playerId, controller) -> {
+            PlayerAudioStream stream = audioManager.getPlayerStream(playerId);
+            if (stream != null && stream.isPlaying()) {
+                float level = stream.getCurrentLevel();
+                controller.updateMeter(level);
+            }
+        });
+
+        // Update output meter
+        OutputAudioStream outputStream = audioManager.getOutputStream();
+        if (outputController != null && outputStream != null && outputStream.isRunning()) {
+            float level = outputStream.getCurrentLevel();
+            outputController.updateMeter(level);
+        }
+    }
+
+    // === Cleanup ===
+
+    public void shutdown() {
+        stopMeterUpdates();
+        playerControllers.clear();
+        inputController = null;
+        outputController = null;
+    }
 }

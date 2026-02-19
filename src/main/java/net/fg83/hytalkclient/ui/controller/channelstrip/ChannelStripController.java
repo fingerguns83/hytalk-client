@@ -6,11 +6,12 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.*;
+import javafx.scene.shape.Line;
 import net.fg83.hytalkclient.ui.event.GainChangeEvent;
 import net.fg83.hytalkclient.util.AppConstants;
 
-import javax.sound.sampled.Line;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.UUID;
 
 import static java.lang.Math.round;
@@ -91,6 +92,7 @@ public abstract class ChannelStripController {
         initializeScribbleStrip();
         initializeFaderCap();
         initializeFaderLocation();
+        initializeVUMeter();
     }
 
     protected void initializeScribbleStrip() {
@@ -119,5 +121,12 @@ public abstract class ChannelStripController {
 
     protected float calculateGainPercentage() {
         return (float) (1 - (faderLocation - AppConstants.UI.ChannelStrip.FADER_MIN_Y) / (AppConstants.UI.ChannelStrip.FADER_MAX_Y - AppConstants.UI.ChannelStrip.FADER_MIN_Y));
+    }
+
+    public void updateMeter(float level) {
+        if (Instant.now().getEpochSecond() % 2 == 0 && this instanceof InputChannelStripController){
+            System.out.println("Level: " + level);
+        }
+        VUMeter.setEndY(Math.round((255 - (level * 255))) + 5);
     }
 }

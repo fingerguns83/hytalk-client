@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 
 import javafx.scene.control.Label;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import net.fg83.hytalkclient.util.ButtonType;
 
@@ -55,7 +56,19 @@ public class ButtonController {
         }
     }
 
+
+    /* GETTERS AND SETTERS */
+    public boolean isEngaged() {
+        return isEngaged;
+    }
+
+    public void setEngaged(boolean engaged) {
+        isEngaged = engaged;
+    }
+
+    /* EVENT HANDLERS */
     public void toggleButtonFeature(MouseEvent mouseEvent) {
+        if (!mouseEvent.getButton().equals(MouseButton.PRIMARY)){ return; }
         if (isEngaged) {
             MIXER_BUTTON_LABEL.setStyle("-fx-text-fill: black;");
         }
@@ -66,11 +79,9 @@ public class ButtonController {
         setEngaged(!isEngaged);
     }
 
-    public boolean isEngaged() {
-        return isEngaged;
-    }
+    public void bindControlToHotkey(MouseEvent mouseEvent) {
+        if (!mouseEvent.getButton().equals(MouseButton.SECONDARY)){ return; }
 
-    public void setEngaged(boolean engaged) {
-        isEngaged = engaged;
+        MIXER_BUTTON_LABEL.setStyle("-fx-text-fill: violet;");
     }
 }

@@ -156,6 +156,7 @@
                         <id>mac</id>
                         <configuration>
                             <icon>${project.basedir}/icons/icon.icns</icon>
+                            <resourceDir>${project.basedir}/src/main/resources/macos</resourceDir>
                         </configuration>
                     </execution>
                     <execution>
