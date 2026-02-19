@@ -18,4 +18,6 @@ module net.fg83.hytalkclient {
     exports net.fg83.hytalkclient.service;
     exports net.fg83.hytalkclient.model;
     exports net.fg83.hytalkclient.audio;
+
+    exports org.concentus;
 }
