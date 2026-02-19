@@ -24,27 +24,31 @@ pipeline {
                 //    }
                 //}
 
-                //stage('Mac ARM') {
-                //    agent { label 'mac && arm' }
-                //    steps {
-                //        sh 'mvn clean package jpackage:jpackage@mac'
-                //        sh 'mkdir -p artifacts/mac-arm64'
-                //        sh 'cp -r target/* artifacts/mac-arm64/'
-                //    }
-                //    post {
-                //        success {
-                //            archiveArtifacts artifacts: 'artifacts/mac-arm64/**/*', fingerprint: true
-                //        }
-                //    }
-                //}
+                stage('Mac ARM') {
+                    agent { label 'mac && arm' }
+                    steps {
+                        sh 'mvn clean package jpackage:jpackage@mac'
+                        sh 'mkdir -p artifacts/mac-arm64'
+                        sh 'cp -r target/* artifacts/mac-arm64/'
+                    }
+                    post {
+                        success {
+                            archiveArtifacts artifacts: 'artifacts/mac-arm64/**/*', fingerprint: true
+                        }
+                    }
+                }
 
                 stage('Win AMD') {
                     agent { label 'windows && amd' }
+                    options {
+                        skipDefaultCheckout()
+                    }
                     steps {
-                        bat 'mvn -version'
-                        bat 'mvn clean package jpackage:jpackage@win'
-                        bat 'if not exist artifacts\\windows-amd64 mkdir artifacts\\windows-amd64'
-                        bat 'xcopy /E /I /Y target artifacts\\windows-amd64'
+                       cleanWs()
+                       checkout scm
+                       bat 'mvn package jpackage:jpackage@win'
+                       bat 'if not exist artifacts\\windows-amd64 mkdir artifacts\\windows-amd64'
+                       bat 'xcopy /E /I /Y target artifacts\\windows-amd64'
                     }
                     post {
                         success {
