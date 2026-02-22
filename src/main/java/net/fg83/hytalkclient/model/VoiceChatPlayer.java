@@ -5,11 +5,11 @@ import java.util.UUID;
 public class VoiceChatPlayer {
     private boolean isLocalUser = false;
 
-    private String playerName;
-    private UUID playerUUID;
-    private float gain = 1.0f;
+    private final String playerName;
+    private final UUID playerUUID;
 
     private Location playerLocation;
+    private double currentDistance = Double.MAX_VALUE;
 
     public VoiceChatPlayer(String playerName, UUID playerUUID) {
         this.playerName = playerName;
@@ -39,10 +39,16 @@ public class VoiceChatPlayer {
     public Location getPlayerLocation() {
         return playerLocation;
     }
+    public double getCurrentDistance() { return currentDistance;}
+
 
     public double calculateDistance(Location testLocation){
-        return Location.calculateDistance(playerLocation, testLocation);
+        currentDistance = Location.calculateDistance(playerLocation, testLocation);
+        return currentDistance;
     }
-    public float getGain() { return gain; }
-    public void setGain(float gain) { this.gain = gain; }
+
+    public float calculateAttenuation(int attenuationDistance) {
+        float normalized = (float) Math.min(currentDistance / attenuationDistance, 1.0);
+        return 1.0f - (float) Math.sqrt(normalized);
+    }
 }

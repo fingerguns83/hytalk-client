@@ -1,0 +1,37 @@
+#PLAYER_CHANNEL_SCROLL .scroll-bar:horizontal .increment-arrow,
+#PLAYER_CHANNEL_SCROLL .scroll-bar:horizontal .decrement-arrow {
+    -fx-shape: "";
+    -fx-padding: 0;
+}
+
+#PLAYER_CHANNEL_SCROLL .scroll-bar:horizontal .increment-button,
+#PLAYER_CHANNEL_SCROLL .scroll-bar:horizontal .decrement-button {
+    -fx-pref-width: 0;
+    -fx-pref-height: 0;
+    -fx-padding: 0;
+}
+
+/* Alternative: hide the entire button containers */
+#PLAYER_CHANNEL_SCROLL .scroll-bar:horizontal > .increment-button,
+#PLAYER_CHANNEL_SCROLL .scroll-bar:horizontal > .decrement-button {
+    -fx-opacity: 0;
+    -fx-pref-width: 0;
+}
+
+/* Scrollbar track (background) */
+#PLAYER_CHANNEL_SCROLL .scroll-bar:horizontal .track {
+    -fx-background-color: #353434;
+    -fx-background-radius: 0;
+}
+
+/* Scrollbar thumb (the draggable part) - default state (50% opacity) */
+#PLAYER_CHANNEL_SCROLL .scroll-bar:horizontal .thumb {
+    -fx-background-color: #131313;
+    -fx-background-radius: 0;
+    -fx-opacity: 0.5;
+}
+
+/* Scrollbar thumb when hovering over the ScrollPane */
+#PLAYER_CHANNEL_SCROLL:hover .scroll-bar:horizontal .thumb {
+    -fx-opacity: 1.0;
+}

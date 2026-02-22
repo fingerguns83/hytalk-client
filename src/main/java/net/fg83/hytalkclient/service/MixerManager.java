@@ -22,7 +22,7 @@ import java.util.UUID;
  */
 public class MixerManager {
 
-    private final AudioManager audioManager;
+    private final AudioStreamManager audioStreamManager;
 
     // UI controllers
     private InputChannelStripController inputController;
@@ -33,8 +33,8 @@ public class MixerManager {
     private AnimationTimer meterTimer;
     private boolean running = false;
 
-    public MixerManager(AudioManager audioManager) {
-        this.audioManager = audioManager;
+    public MixerManager(AudioStreamManager audioStreamManager) {
+        this.audioStreamManager = audioStreamManager;
     }
 
     // === UI Controller Registration ===
@@ -95,7 +95,7 @@ public class MixerManager {
      */
     private void updateAllMeters() {
         // Update input meter
-        InputAudioStream inputStream = audioManager.getInputStream();
+        InputAudioStream inputStream = audioStreamManager.getInputStream();
         if (inputController != null && inputStream != null && inputStream.isRunning()) {
             float level = inputStream.getCurrentLevel();
             inputController.updateMeter(level);
@@ -103,7 +103,7 @@ public class MixerManager {
 
         // Update player meters
         playerControllers.forEach((playerId, controller) -> {
-            PlayerAudioStream stream = audioManager.getPlayerStream(playerId);
+            PlayerAudioStream stream = audioStreamManager.getPlayerStream(playerId);
             if (stream != null && stream.isPlaying()) {
                 float level = stream.getCurrentLevel();
                 controller.updateMeter(level);
@@ -111,14 +111,13 @@ public class MixerManager {
         });
 
         // Update output meter
-        OutputAudioStream outputStream = audioManager.getOutputStream();
+        OutputAudioStream outputStream = audioStreamManager.getOutputStream();
         if (outputController != null && outputStream != null && outputStream.isRunning()) {
             float level = outputStream.getCurrentLevel();
             outputController.updateMeter(level);
         }
     }
 
-    // === Cleanup ===
 
     public void shutdown() {
         stopMeterUpdates();

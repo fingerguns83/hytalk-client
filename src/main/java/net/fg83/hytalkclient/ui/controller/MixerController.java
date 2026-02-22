@@ -4,24 +4,28 @@ package net.fg83.hytalkclient.ui.controller;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import net.fg83.hytalkclient.HytalkClientApplication;
+
+import net.datafaker.Faker;
+import net.fg83.hytalkclient.model.ApplicationState;
+import net.fg83.hytalkclient.model.VoiceChatPlayer;
 import net.fg83.hytalkclient.service.AudioIOManager;
-import net.fg83.hytalkclient.service.PlayerManager;
 import net.fg83.hytalkclient.service.event.PlayerChangeEvent;
 import net.fg83.hytalkclient.ui.controller.channelstrip.ChannelStripController;
 import net.fg83.hytalkclient.ui.controller.channelstrip.InputChannelStripController;
 import net.fg83.hytalkclient.ui.controller.channelstrip.OutputChannelStripController;
-import net.fg83.hytalkclient.ui.event.RegisterChannelControllerEvent;
-import net.fg83.hytalkclient.ui.event.ResizeEvent;
-import net.fg83.hytalkclient.util.WindowDimensions;
+import net.fg83.hytalkclient.ui.event.mixer.RegisterChannelControllerEvent;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Consumer;
+
+import static net.fg83.hytalkclient.HytalkClientApplication.getView;
 
 /**
  * MixerController is a REACTIVE VIEW that manages dynamic channel strips.
@@ -35,150 +39,135 @@ import java.util.function.Consumer;
 public class MixerController {
 
     @FXML
-    private Pane MIXER_ROOT;
+    private HBox MIXER_ROOT;
+    @FXML
+    private Pane INPUT_CHANNEL_HOLDER;
+    @FXML
+    private Pane OUTPUT_CHANNEL_HOLDER;
+    @FXML
+    private ScrollPane PLAYER_CHANNEL_SCROLL;
+    @FXML
+    private HBox PLAYER_CHANNEL_HOLDER;
 
-    private Pane INPUT_FADER;
-    private Pane MASTER_FADER;
+    private Pane INPUT_CHANNEL;
+    private Pane OUTPUT_CHANNEL;
 
     private InputChannelStripController inputController;
     private OutputChannelStripController outputController;
 
-    private final Map<UUID, Pane> playerFaders = new HashMap<>();
+    private final Map<VoiceChatPlayer, Pane> playerFaders = new HashMap<>();
 
     /**
      * Setup the mixer with a player change listener callback.
      * The parent controller provides this callback to bridge the gap.
      */
-    public void setup(PlayerManager playerManager) throws IOException {
-        initializeFaders();
+    public void setup(ApplicationState applicationState) throws IOException {
+        initializeFaders(applicationState);
+        initializePlayerChannelsContainer();
 
         // Register through parent, but handle locally
-        playerManager.addPlayerChangeListener(this::handlePlayerChange);
+        applicationState.getPlayerManager().addPlayerChangeListener(this::handlePlayerChange);
     }
 
-    private void initializeFaders() throws IOException {
-        createInputFader();
-        createMasterFader();
+    private void initializeFaders(ApplicationState applicationState) throws IOException {
+        createInputChannel(applicationState);
+        createOutputChannel(applicationState);
     }
 
-    // === Player Change Handling (Reactive) ===
+    private void initializePlayerChannelsContainer() {
+        PLAYER_CHANNEL_HOLDER.setSpacing(0); // Adjust spacing as needed
+        PLAYER_CHANNEL_SCROLL.setContent(PLAYER_CHANNEL_HOLDER);
+
+        // Optional: Configure scroll behavior
+        PLAYER_CHANNEL_SCROLL.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        PLAYER_CHANNEL_SCROLL.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        PLAYER_CHANNEL_SCROLL.setFitToHeight(true);
+    }
 
     private void handlePlayerChange(PlayerChangeEvent event) {
         if (event instanceof PlayerChangeEvent.PlayerAddedEvent addedEvent) {
             handlePlayerAdded(addedEvent);
-        } else if (event instanceof PlayerChangeEvent.PlayerRemovedEvent removedEvent) {
+        }
+        else if (event instanceof PlayerChangeEvent.PlayerRemovedEvent removedEvent) {
             handlePlayerRemoved(removedEvent);
-        } else if (event instanceof PlayerChangeEvent.PlayerUpdatedEvent updatedEvent) {
+        }
+        else if (event instanceof PlayerChangeEvent.PlayerUpdatedEvent updatedEvent) {
             handlePlayerUpdated(updatedEvent);
         }
     }
 
     private void handlePlayerAdded(PlayerChangeEvent.PlayerAddedEvent event) {
+        VoiceChatPlayer player = event.getPlayer();
+        Pane fader = null;
+
         try {
-            UUID playerId = event.playerId();
-            String playerName = event.player().getPlayerName();
-
-            Pane fader = createPlayerFader(playerId, playerName);
-            playerFaders.put(playerId, fader);
-
-            System.out.println("Created channel strip for player: " + playerName);
-        } catch (IOException e) {
-            System.err.println("Failed to create fader for player: " + e.getMessage());
+            fader = createPlayerChannelStrip(player.getPlayerId(), player.getPlayerName());
         }
+        catch (IOException e) {
+            System.err.println("Failed to create fader for player: " + player.getPlayerName() + "[" + player.getPlayerId() + "]" + e.getMessage());
+        }
+
+        if (fader != null) {
+            playerFaders.put(player, fader);
+            refreshPlayerChannelOrder();
+        }
+
     }
 
     private void handlePlayerRemoved(PlayerChangeEvent.PlayerRemovedEvent event) {
-        UUID playerId = event.playerId();
-        Pane fader = playerFaders.remove(playerId);
+        VoiceChatPlayer player = event.getPlayer();
+        Pane fader = playerFaders.remove(player);
 
         if (fader != null) {
-            MIXER_ROOT.getChildren().remove(fader);
-            repositionMasterFader();
-            resizeMixer();
-            System.out.println("Removed channel strip for player: " + playerId);
+            PLAYER_CHANNEL_HOLDER.getChildren().remove(fader);
+            refreshPlayerChannelOrder();
+            System.out.println("Removed channel strip for player: " + player.getPlayerName() + "[" + player.getPlayerId() + "]");
         }
     }
 
     private void handlePlayerUpdated(PlayerChangeEvent.PlayerUpdatedEvent event) {
-        System.out.println("Player " + event.playerId() + " updated location");
         // Could update volume based on distance here
     }
 
     // === Channel Strip Creation ===
-
-    public Pane createPlayerFader(UUID playerId, String playerName) throws IOException {
-        Pane channelRoot = loadChannelStrip(playerId, playerName);
-        insertChannelBeforeMaster(channelRoot);
-        resizeMixer();
-        return channelRoot;
-    }
-
-    private Pane loadChannelStrip(UUID playerId, String playerName) throws IOException {
-        FXMLLoader loader = new FXMLLoader(
-                HytalkClientApplication.class.getResource("widget/channelstrip/PlayerChannelStrip.fxml")
-        );
+    private Pane createPlayerChannelStrip(UUID playerId, String playerName) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getView("widget/channelstrip/PlayerChannelStrip.fxml"));
         Pane channelRoot = (Pane) loader.load();
 
         ChannelStripController controller = (ChannelStripController) loader.getController();
         controller.setPlayerId(playerId);
         controller.setPlayerName(playerName);
         controller.setRootId("CHANNEL-" + playerId);
-        controller.setup();
+        controller.setup(null);
 
         MIXER_ROOT.fireEvent(new RegisterChannelControllerEvent(playerId, controller, false, false));
 
         return channelRoot;
     }
 
-    private void insertChannelBeforeMaster(Pane channelStrip) {
-        MIXER_ROOT.getChildren().remove(MASTER_FADER);
 
-        int position = MIXER_ROOT.getChildren().size();
-        channelStrip.setLayoutX(position * WindowDimensions.CHANNEL_STRIP_WIDTH);
-        MIXER_ROOT.getChildren().add(channelStrip);
 
-        repositionMasterFader();
-    }
-
-    private void repositionMasterFader() {
-        if (MASTER_FADER != null) {
-            int position = MIXER_ROOT.getChildren().size();
-            MASTER_FADER.setLayoutX(position * WindowDimensions.CHANNEL_STRIP_WIDTH);
-            MIXER_ROOT.getChildren().add(MASTER_FADER);
-        }
-    }
-
-    private void resizeMixer() {
-        double newWidth = MIXER_ROOT.getChildren().size() * WindowDimensions.CHANNEL_STRIP_WIDTH;
-        MIXER_ROOT.fireEvent(new ResizeEvent(newWidth, WindowDimensions.MIXER_HEIGHT));
-    }
-
-    public void createInputFader() throws IOException {
-        FXMLLoader loader = new FXMLLoader(
-                HytalkClientApplication.class.getResource("widget/channelstrip/InputChannelStrip.fxml")
-        );
+    public void createInputChannel(ApplicationState applicationState) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getView("widget/channelstrip/InputChannelStrip.fxml"));
         Parent channelRoot = loader.load();
 
         inputController = (InputChannelStripController) loader.getController();
-        inputController.setup();
+        inputController.setup(applicationState);
 
-        INPUT_FADER = (Pane) channelRoot;
-        MIXER_ROOT.getChildren().addFirst(channelRoot);
+        INPUT_CHANNEL = (Pane) channelRoot;
+        INPUT_CHANNEL_HOLDER.getChildren().addFirst(channelRoot);
         MIXER_ROOT.fireEvent(new RegisterChannelControllerEvent(null, inputController, true, false));
     }
 
-    public void createMasterFader() throws IOException {
-        FXMLLoader loader = new FXMLLoader(
-                HytalkClientApplication.class.getResource("widget/channelstrip/OutputChannelStrip.fxml")
-        );
+    public void createOutputChannel(ApplicationState applicationState) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getView("widget/channelstrip/OutputChannelStrip.fxml"));
         Parent channelRoot = loader.load();
 
         outputController = (OutputChannelStripController) loader.getController();
-        outputController.setup();
+        outputController.setup(applicationState);
 
-        MASTER_FADER = (Pane) channelRoot;
-        MASTER_FADER.setLayoutX(MIXER_ROOT.getChildren().size() * WindowDimensions.CHANNEL_STRIP_WIDTH);
-        MIXER_ROOT.getChildren().addLast(channelRoot);
+        OUTPUT_CHANNEL = (Pane) channelRoot;
+        OUTPUT_CHANNEL_HOLDER.getChildren().addLast(channelRoot);
         MIXER_ROOT.fireEvent(new RegisterChannelControllerEvent(null, outputController, false, true));
     }
 
@@ -195,6 +184,48 @@ public class MixerController {
                                     AudioIOManager.AudioDevice selected) {
         if (outputController != null) {
             outputController.setDevices(devices, selected);
+        }
+    }
+
+    /* TESTING METHODS */
+    /**
+     * Adds dummy player channels for UI testing purposes.
+     * This method does NOT affect the actual PlayerManager state.
+     */
+    public void addDummyPlayers(int count) {
+        Faker faker = new Faker();
+
+        for (int i = 1; i <= count; i++) {
+            UUID dummyId = UUID.randomUUID();
+            String dummyName = faker.name().username();
+
+            handlePlayerAdded(new PlayerChangeEvent.PlayerAddedEvent(new VoiceChatPlayer(dummyName, dummyId)));
+        }
+        refreshPlayerChannelOrder();
+    }
+
+    /* UTILITY METHODS */
+    private void refreshPlayerChannelOrder() {
+        // Clear existing children
+        PLAYER_CHANNEL_HOLDER.getChildren().clear();
+
+        // Sort by player name and add back in order
+        playerFaders.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey(
+                        (p1, p2) -> p1.getPlayerName().compareToIgnoreCase(p2.getPlayerName())
+                ))
+                .forEach(entry -> {
+                    Pane fader = entry.getValue();
+                    fader.getStyleClass().remove("last-player-channel");
+                    PLAYER_CHANNEL_HOLDER.getChildren().add(fader);
+                });
+
+        // Mark the last channel for CSS styling
+        if (!PLAYER_CHANNEL_HOLDER.getChildren().isEmpty()) {
+            javafx.scene.Node lastChild = PLAYER_CHANNEL_HOLDER.getChildren().get(
+                    PLAYER_CHANNEL_HOLDER.getChildren().size() - 1
+            );
+            lastChild.getStyleClass().add("last-player-channel");
         }
     }
 }

@@ -3,18 +3,18 @@ package net.fg83.hytalkclient.ui.controller;
 import javafx.fxml.FXML;
 import javafx.scene.layout.AnchorPane;
 
-import net.fg83.hytalkclient.ui.controller.channelstrip.ChannelStripController;
-import net.fg83.hytalkclient.ui.controller.channelstrip.InputChannelStripController;
-import net.fg83.hytalkclient.ui.controller.channelstrip.OutputChannelStripController;
 import net.fg83.hytalkclient.ui.event.*;
+import net.fg83.hytalkclient.ui.event.handler.MixerEventHandler;
+import net.fg83.hytalkclient.ui.event.mixer.AudioDeviceEvent;
+import net.fg83.hytalkclient.ui.event.mixer.GainChangeEvent;
+import net.fg83.hytalkclient.ui.event.mixer.RegisterChannelControllerEvent;
+import net.fg83.hytalkclient.ui.event.view.ResizeEvent;
+import net.fg83.hytalkclient.ui.event.view.ViewEvent;
 import net.fg83.hytalkclient.util.WindowDimensions;
 import net.fg83.hytalkclient.model.ApplicationState;
 import net.fg83.hytalkclient.message.MessageType;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 import static net.fg83.hytalkclient.HytalkClientApplication.getView;
 
@@ -78,10 +78,10 @@ public class HytalkClientController {
 
         LaunchController controller = applicationState.getViewNavigationManager().navigateToView(
                 getView("subviews/LaunchView.fxml"),
-                null
+                null,
+                WindowDimensions.LAUNCH_WIDTH,
+                WindowDimensions.LAUNCH_HEIGHT
         );
-
-        applicationState.getViewNavigationManager().setDimensions(WindowDimensions.LAUNCH_WIDTH, WindowDimensions.LAUNCH_HEIGHT);
 
         controller.run();
     }
@@ -91,10 +91,10 @@ public class HytalkClientController {
 
         applicationState.getViewNavigationManager().navigateToView(
                 getView("subviews/ConnectionView.fxml"),
-                null
+                null,
+                WindowDimensions.CONNECTION_WIDTH,
+                WindowDimensions.CONNECTION_HEIGHT
         );
-
-        applicationState.getViewNavigationManager().setDimensions(WindowDimensions.CONNECTION_WIDTH, WindowDimensions.CONNECTION_HEIGHT);
     }
 
     private void setupConnectionPendingView() throws IOException {
@@ -102,25 +102,26 @@ public class HytalkClientController {
 
         applicationState.getViewNavigationManager().navigateToView(
                 getView("subviews/ConnectionPendingView.fxml"),
-                null
+                null,
+                WindowDimensions.CONNECTION_WIDTH,
+                WindowDimensions.CONNECTION_HEIGHT
         );
-
-        applicationState.getViewNavigationManager().setDimensions(WindowDimensions.CONNECTION_WIDTH, WindowDimensions.CONNECTION_HEIGHT);
     }
 
     private void setupPairingView() throws IOException {
         System.out.println("Displaying pairing view");
 
         PairingController controller = applicationState.getViewNavigationManager().navigateToView(
-                getView("subviews/PairingView.fxml"), pairingController -> {
+                getView("subviews/PairingView.fxml"),
+                pairingController -> {
                     pairingController.setup(
                             applicationState.getPairingManager().getPairingCode(),
                             applicationState.getPairingManager().getPairingExpiration()
                     );
-                }
+                },
+                WindowDimensions.PAIRING_WIDTH,
+                WindowDimensions.PAIRING_HEIGHT
         );
-
-        applicationState.getViewNavigationManager().setDimensions(WindowDimensions.PAIRING_WIDTH, WindowDimensions.PAIRING_HEIGHT);
     }
 
     private void setupMixerView() throws IOException {
@@ -128,16 +129,10 @@ public class HytalkClientController {
 
         MixerController controller = applicationState.getViewNavigationManager().navigateToView(
                 getView("subviews/MixerView.fxml"),
-                mixerController -> mixerController.setup(applicationState.getPlayerManager())
-        );
-
-        // Register resize listener
-        CLIENT_ROOT.addEventHandler(ResizeEvent.RESIZE_EVENT, e -> {
-            applicationState.getViewNavigationManager().setDimensions(e.getWidth(), e.getHeight());
-        });
-
-        applicationState.getViewNavigationManager().setDimensions(
-                WindowDimensions.CHANNEL_STRIP_WIDTH * 2,
+                mixerController -> {
+                    mixerController.setup(applicationState);
+                },
+                WindowDimensions.MIXER_WIDTH,
                 WindowDimensions.MIXER_HEIGHT
         );
 
@@ -149,8 +144,9 @@ public class HytalkClientController {
             applicationState.getErrorDialogManager().showError("Audio Error", "Failed to start audio input: " + e.getMessage());
         }
         try {
-            applicationState.getAudioManager().startInput();
-            System.out.println("Started audio input for testing");
+            applicationState.getAudioStreamManager().startInput(applicationState.getAudioNetworkManager()::onCapturedFrame);
+            applicationState.getAudioStreamManager().startOutput();
+            System.out.println("Started audio IO");
         } catch (Exception e) {
             applicationState.getErrorDialogManager().showError(
                     "Audio Error",
@@ -173,14 +169,8 @@ public class HytalkClientController {
                 case READY -> {
                     CLIENT_ROOT.fireEvent(new ViewEvent(ViewEvent.SHOW_MIXER_VIEW));
                 }
-                case POSITION_DATA -> {
-                    System.out.println("Received position data");
-                }
-                case PING -> {
-                    System.out.println("Received ping");
-                }
                 default -> {
-                    System.out.println("Unhandled message type: " + type);
+
                 }
             }
         });
@@ -220,44 +210,14 @@ public class HytalkClientController {
 
     /* MIXER EVENT HANDLERS */
     private void setupMixerEventHandlers() {
-        CLIENT_ROOT.addEventHandler(RegisterChannelControllerEvent.REGISTER_CHANNEL_CONTROLLER_EVENT, this::handleControllerRegistration);
+        CLIENT_ROOT.addEventHandler(RegisterChannelControllerEvent.REGISTER_CHANNEL_CONTROLLER_EVENT, (RegisterChannelControllerEvent event) -> MixerEventHandler.handleControllerRegistration(event, applicationState));
+        CLIENT_ROOT.addEventHandler(GainChangeEvent.PLAYER_GAIN_CHANGE_EVENT, (GainChangeEvent event) -> MixerEventHandler.handlePlayerGainChange(event, applicationState));
+        CLIENT_ROOT.addEventHandler(GainChangeEvent.INPUT_GAIN_CHANGE_EVENT, MixerEventHandler::handleInputGainChange);
+        CLIENT_ROOT.addEventHandler(GainChangeEvent.OUTPUT_GAIN_CHANGE_EVENT, MixerEventHandler::handleOutputGainChange);
 
-        CLIENT_ROOT.addEventHandler(GainChangeEvent.PLAYER_GAIN_CHANGE_EVENT, this::handlePlayerGainChange);
-        CLIENT_ROOT.addEventHandler(GainChangeEvent.INPUT_GAIN_CHANGE_EVENT, this::handleInputGainChange);
-        CLIENT_ROOT.addEventHandler(GainChangeEvent.OUTPUT_GAIN_CHANGE_EVENT, this::handleOutputGainChange);
-
-        CLIENT_ROOT.addEventHandler(AudioDeviceEvent.INPUT_DEVICE_CHANGED, this::handleInputDeviceChange);
-        CLIENT_ROOT.addEventHandler(AudioDeviceEvent.OUTPUT_DEVICE_CHANGED, this::handleOutputDeviceChange);
+        CLIENT_ROOT.addEventHandler(AudioDeviceEvent.INPUT_DEVICE_CHANGED, (AudioDeviceEvent event) -> MixerEventHandler.handleInputDeviceChange(event, applicationState));
+        CLIENT_ROOT.addEventHandler(AudioDeviceEvent.OUTPUT_DEVICE_CHANGED, (AudioDeviceEvent event) -> MixerEventHandler.handleOutputDeviceChange(event, applicationState));
     }
-
-    private void handleControllerRegistration(RegisterChannelControllerEvent event) {
-        if (event.isInput()) {
-            applicationState.getMixerManager().setInputController((InputChannelStripController) event.getController());
-        }
-        else if (event.isOutput()) {
-            applicationState.getMixerManager().setOutputController((OutputChannelStripController) event.getController());
-
-        }
-        else {
-            applicationState.getMixerManager().addPlayerController(event.getPlayerUUID(), event.getController());
-        }
-    }
-
-    private void handlePlayerGainChange(GainChangeEvent event) {
-        System.out.println("Gain change event received: " + event.getPlayerUUID());
-        applicationState.getPlayerManager().getVoiceChatPlayers().get(event.getPlayerUUID()).setGain((float) (event.getGainPercentage() * 1.25F));
-    }
-    private void handleInputGainChange(GainChangeEvent event){
-
-    }
-    private void handleOutputGainChange(GainChangeEvent event){
-    }
-    private void handleInputDeviceChange(AudioDeviceEvent event){
-        applicationState.getAudioManager().getAudioIOManager().setSelectedInputDevice(event.getDevice());
-    }
-    private void handleOutputDeviceChange(AudioDeviceEvent event){
-    }
-
 
 
     /* UTILITY EVENT HANDLERS */

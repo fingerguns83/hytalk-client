@@ -10,17 +10,15 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Line;
 import net.fg83.hytalkclient.HytalkClientApplication;
+import net.fg83.hytalkclient.model.ApplicationState;
 import net.fg83.hytalkclient.service.AudioIOManager;
 import net.fg83.hytalkclient.ui.controller.channelstrip.button.ButtonController;
-import net.fg83.hytalkclient.ui.event.AudioDeviceEvent;
-import net.fg83.hytalkclient.ui.event.GainChangeEvent;
+import net.fg83.hytalkclient.ui.event.mixer.AudioDeviceEvent;
+import net.fg83.hytalkclient.ui.event.mixer.GainChangeEvent;
 import net.fg83.hytalkclient.util.ButtonType;
 
-import java.awt.*;
 import java.io.IOException;
 import java.util.List;
-
-import static java.lang.Math.round;
 
 public class InputChannelStripController extends ChannelStripController {
     @FXML
@@ -28,12 +26,6 @@ public class InputChannelStripController extends ChannelStripController {
 
     @FXML
     private HBox CHANNEL_BUTTON_HOLDER;
-
-    @FXML
-    private Pane MUTE_BUTTON_HOLDER;
-
-    @FXML
-    private Pane NR_BUTTON_HOLDER;
 
     private StackPane muteButton;
 
@@ -44,15 +36,10 @@ public class InputChannelStripController extends ChannelStripController {
 
     private final ToggleGroup inputDeviceToggleGroup = new ToggleGroup();
 
-    @FXML
-    private void initialize() throws IOException {
-
-    }
-
     /* Utility Methods */
     @Override
-    public void setup() throws IOException {
-        initializeDeviceSelector();
+    public void setup(ApplicationState applicationState) throws IOException {
+        initializeDeviceSelector(applicationState);
         initializeFaderCap();
         initializeFaderLocation();
         initializeButtons();
@@ -86,9 +73,16 @@ public class InputChannelStripController extends ChannelStripController {
         nrButtonController.setup();
     }
 
-    protected void initializeDeviceSelector() {
-        setDevices(AudioIOManager.getInputDevices(), null);
-
+    protected void initializeDeviceSelector(ApplicationState applicationState) {
+        AudioIOManager.AudioDevice selected = applicationState.getAudioStreamManager().getAudioIOManager().getSelectedInputDevice();
+        if (selected == null) {
+            INPUT_DEVICE_SELECTOR.getTooltip().setText("Default Input Device");
+            return;
+        }
+        else {
+            INPUT_DEVICE_SELECTOR.getTooltip().setText(selected.name());
+        }
+        setDevices(AudioIOManager.getInputDevices(), selected);
     }
 
     @Override
@@ -97,6 +91,7 @@ public class InputChannelStripController extends ChannelStripController {
     }
 
     private void handleDeviceSelection(String device) {
+        INPUT_DEVICE_SELECTOR.getTooltip().setText(device);
         INPUT_CHANNEL_STRIP_ROOT.fireEvent(new AudioDeviceEvent(AudioDeviceEvent.INPUT_DEVICE_CHANGED, AudioIOManager.getInputDevices().stream().filter(d -> d.name().equals(device)).findFirst().orElse(null)));
     }
 
@@ -105,6 +100,12 @@ public class InputChannelStripController extends ChannelStripController {
         for (AudioIOManager.AudioDevice device : devices) {
             RadioMenuItem item = new RadioMenuItem(device.name());
             item.setOnAction(e -> handleDeviceSelection(device.name()));
+
+            // Select the item if it matches the selected device
+            if (selected != null && device.name().equals(selected.name())) {
+                item.setSelected(true);
+            }
+
             INPUT_DEVICE_SELECTOR.getItems().add(item);
         }
 

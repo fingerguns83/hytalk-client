@@ -5,22 +5,18 @@ import net.fg83.hytalkclient.service.*;
 
 public class ApplicationState {
     private final ErrorDialogManager errorDialogManager = new ErrorDialogManager();
-    private ViewNavigationManager viewNavigationManager;
+    private final PreferenceManager preferenceManager = new PreferenceManager();
     private final ConnectionManager connectionManager = new ConnectionManager(this);
     private final PairingManager pairingManager = new PairingManager();
     private final PlayerManager playerManager = new PlayerManager();
-    private final AudioManager audioManager = new AudioManager();
-    private final MixerManager mixerManager = new MixerManager(audioManager);
+    private final AudioStreamManager audioStreamManager = new AudioStreamManager(preferenceManager);
+    private final AudioNetworkManager audioNetworkManager = new AudioNetworkManager();
+    private final MixerManager mixerManager = new MixerManager(audioStreamManager);
+
+    private ViewNavigationManager viewNavigationManager;
 
 
-    public ApplicationState() { }
-
-    public void setViewNavigationManager(ViewNavigationManager viewNavigationManager) {
-        this.viewNavigationManager = viewNavigationManager;
-    }
-    public ViewNavigationManager getViewNavigationManager() {
-        return viewNavigationManager;
-    }
+    /* GETTERS AND SETTERS */
 
     public ConnectionManager getConnectionManager() {
         return connectionManager;
@@ -30,8 +26,12 @@ public class ApplicationState {
         return pairingManager;
     }
 
-    public AudioManager getAudioManager() {
-        return audioManager;
+    public AudioStreamManager getAudioStreamManager() {
+        return audioStreamManager;
+    }
+
+    public AudioNetworkManager getAudioNetworkManager() {
+        return audioNetworkManager;
     }
 
     public MixerManager getMixerManager() {
@@ -44,5 +44,12 @@ public class ApplicationState {
 
     public ErrorDialogManager getErrorDialogManager() {
         return errorDialogManager;
+    }
+
+    public ViewNavigationManager getViewNavigationManager() {
+        return viewNavigationManager;
+    }
+    public void setViewNavigationManager(ViewNavigationManager viewNavigationManager) {
+        this.viewNavigationManager = viewNavigationManager;
     }
 }

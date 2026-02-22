@@ -5,6 +5,8 @@ import net.fg83.hytalkclient.service.AudioIOManager;
 import net.fg83.hytalkclient.util.AppConstants;
 
 import javax.sound.sampled.*;
+import java.time.Instant;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -150,9 +152,7 @@ public class OutputAudioStream extends AudioStream {
      */
     private void mixStreams(byte[] stereoBuffer) {
         // Clear buffer
-        for (int i = 0; i < stereoBuffer.length; i++) {
-            stereoBuffer[i] = 0;
-        }
+        Arrays.fill(stereoBuffer, (byte) 0);
 
         // If muted or no streams, output silence
         if (muted.get() || playerStreams.isEmpty()) {
@@ -226,7 +226,6 @@ public class OutputAudioStream extends AudioStream {
      */
     public void addPlayerStream(UUID playerId, PlayerAudioStream stream) {
         playerStreams.put(playerId, stream);
-        System.out.println("Added player stream to output: " + playerId);
     }
 
     /**
@@ -244,6 +243,10 @@ public class OutputAudioStream extends AudioStream {
         return (int) playerStreams.values().stream()
                 .filter(stream -> !stream.isMuted() && stream.isPlaying())
                 .count();
+    }
+
+    public Map<UUID, PlayerAudioStream> getPlayerStreams() {
+        return playerStreams;
     }
 
     /**

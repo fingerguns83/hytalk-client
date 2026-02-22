@@ -1,11 +1,10 @@
 package net.fg83.hytalkclient.network;
 
 import net.fg83.hytalkclient.model.ApplicationState;
+import net.fg83.hytalkclient.model.VoiceChatPlayer;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
+import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.UUID;
@@ -18,7 +17,7 @@ public class UdpAudioClient {
 
     private volatile boolean running = true;
 
-    public UdpAudioClient(String host, int port, ApplicationState state) throws Exception {
+    public UdpAudioClient(String host, int port, ApplicationState state) throws SocketException, UnknownHostException {
         this.serverAddress = InetAddress.getByName(host);
         this.serverPort = port;
         this.socket = new DatagramSocket(); // random local port
@@ -27,15 +26,22 @@ public class UdpAudioClient {
         startReceiveThread();
     }
 
-    public void sendAudio(UUID uuid, int sequence, byte[] opusData, int length) throws IOException {
+    public void sendAudio(int sequence, byte[] opusData, int length) throws IOException {
+
+        VoiceChatPlayer player = applicationState.getPlayerManager().getClientPlayer();
+
+        if (player == null){
+            throw new IllegalStateException("ClientPlayer is null");
+        }
+
 
         ByteBuffer buffer = ByteBuffer.allocate(23 + length);
         buffer.order(ByteOrder.BIG_ENDIAN);
 
         buffer.put((byte) 0); // packet type
 
-        buffer.putLong(uuid.getMostSignificantBits());
-        buffer.putLong(uuid.getLeastSignificantBits());
+        buffer.putLong(player.getPlayerId().getMostSignificantBits());
+        buffer.putLong(player.getPlayerId().getLeastSignificantBits());
 
         buffer.putInt(sequence);
         buffer.putShort((short) length);
@@ -90,7 +96,11 @@ public class UdpAudioClient {
         byte[] opusData = new byte[payloadLength];
         buffer.get(opusData);
 
-        applicationState.getAudioManager().onAudioPacket(uuid, sequence, opusData);
+        applicationState.getAudioStreamManager().onIncomingAudioPacket(uuid, sequence, opusData);
+    }
+
+    public boolean readyForSend(){
+        return (applicationState != null && applicationState.getPlayerManager() != null && applicationState.getPlayerManager().getClientPlayer() != null);
     }
 
     public void shutdown() {

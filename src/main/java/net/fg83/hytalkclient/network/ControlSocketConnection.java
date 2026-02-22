@@ -56,8 +56,6 @@ public class ControlSocketConnection extends WebSocketClient {
 
     @Override
     public void onMessage(String message) {
-        System.out.println("Received message: " + message);
-
         try {
             JsonObject json = JsonParser.parseString(message).getAsJsonObject();
             String typeString = json.get("type").getAsString();

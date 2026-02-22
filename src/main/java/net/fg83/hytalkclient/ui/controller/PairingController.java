@@ -4,9 +4,7 @@ import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
-import net.fg83.hytalkclient.model.ApplicationState;
 import net.fg83.hytalkclient.ui.event.PairingEvent;
-import net.fg83.hytalkclient.ui.event.ViewEvent;
 
 import java.time.Instant;
 

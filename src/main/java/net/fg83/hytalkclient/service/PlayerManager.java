@@ -1,5 +1,6 @@
 package net.fg83.hytalkclient.service;
 
+import net.fg83.hytalkclient.model.ApplicationState;
 import net.fg83.hytalkclient.model.VoiceChatPlayer;
 import net.fg83.hytalkclient.service.event.PlayerChangeEvent;
 
@@ -38,18 +39,26 @@ public class PlayerManager {
 
     public void updateVoiceChatPlayers(Map<UUID, VoiceChatPlayer> newVoiceChatPlayers) {
         newVoiceChatPlayers.forEach((uuid, player) -> {
-            if (this.voiceChatPlayers.containsKey(uuid)) {
-                this.voiceChatPlayers.get(uuid).setPlayerLocation(player.getPlayerLocation());
-                notifyListeners(new PlayerChangeEvent.PlayerUpdatedEvent(uuid, player));
-            } else {
-                if (!player.getPlayerId().equals(clientPlayer.getPlayerId())) {
-                    this.voiceChatPlayers.put(uuid, player);
-                    notifyListeners(new PlayerChangeEvent.PlayerAddedEvent(uuid, player));
-
-                } else {
-                    clientPlayer.setPlayerLocation(player.getPlayerLocation());
-                }
+            VoiceChatPlayer voiceChatPlayer;
+            if (clientPlayer.getPlayerId().equals(uuid)) {
+                clientPlayer.setPlayerLocation(player.getPlayerLocation());
+                System.out.println("Player updated: " + clientPlayer.getPlayerName() + " [Distance: " + clientPlayer.getCurrentDistance() + "]");
+                return;
             }
+
+            if (this.voiceChatPlayers.containsKey(uuid)) {
+                voiceChatPlayer = this.voiceChatPlayers.get(uuid);
+                voiceChatPlayer.setPlayerLocation(player.getPlayerLocation());
+                notifyListeners(new PlayerChangeEvent.PlayerUpdatedEvent(voiceChatPlayer));
+            }
+            else {
+                voiceChatPlayer = player;
+                this.voiceChatPlayers.put(uuid, voiceChatPlayer);
+                notifyListeners(new PlayerChangeEvent.PlayerAddedEvent(voiceChatPlayer));
+            }
+
+            double distance = voiceChatPlayer.calculateDistance(clientPlayer.getPlayerLocation());
+            System.out.println("Player updated: " + player.getPlayerName() + " [Distance: " + voiceChatPlayer.getCurrentDistance() + "]");
         });
 
         List<UUID> toRemove = this.voiceChatPlayers.keySet().stream()
@@ -57,8 +66,9 @@ public class PlayerManager {
                 .toList();
 
         toRemove.forEach(uuid -> {
+            VoiceChatPlayer player = voiceChatPlayers.get(uuid);
             this.voiceChatPlayers.remove(uuid);
-            notifyListeners(new PlayerChangeEvent.PlayerRemovedEvent(uuid));
+            notifyListeners(new PlayerChangeEvent.PlayerRemovedEvent(player));
         });
     }
 

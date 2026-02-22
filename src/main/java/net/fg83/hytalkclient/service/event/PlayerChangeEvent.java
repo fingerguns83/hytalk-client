@@ -2,31 +2,28 @@ package net.fg83.hytalkclient.service.event;
 
 import net.fg83.hytalkclient.model.VoiceChatPlayer;
 
-import java.util.UUID;
-
 public sealed interface PlayerChangeEvent permits
         PlayerChangeEvent.PlayerAddedEvent,
         PlayerChangeEvent.PlayerRemovedEvent,
         PlayerChangeEvent.PlayerUpdatedEvent {
 
-    UUID getPlayerId();
+    VoiceChatPlayer getPlayer();
 
-    record PlayerAddedEvent(UUID playerId, VoiceChatPlayer player) implements PlayerChangeEvent {
+    record PlayerAddedEvent(VoiceChatPlayer player) implements PlayerChangeEvent {
         @Override
-        public UUID getPlayerId() {
-            return playerId;
+        public VoiceChatPlayer getPlayer() {
+            return player;
         }
     }
-    record PlayerRemovedEvent(UUID playerId) implements PlayerChangeEvent {
+    record PlayerRemovedEvent(VoiceChatPlayer player) implements PlayerChangeEvent {
         @Override
-        public UUID getPlayerId() {
-            return playerId;
-        }
+        public VoiceChatPlayer getPlayer() { return player; }
     }
-    record PlayerUpdatedEvent(UUID playerId, VoiceChatPlayer player) implements PlayerChangeEvent {
+    record PlayerUpdatedEvent(VoiceChatPlayer player) implements PlayerChangeEvent {
         @Override
-        public UUID getPlayerId() {
-            return playerId;
+        public VoiceChatPlayer getPlayer() {
+            return player;
         }
+
     }
 }

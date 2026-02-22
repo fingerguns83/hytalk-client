@@ -27,12 +27,12 @@
                <children>
                   <Pane prefHeight="300.0" prefWidth="400.0">
                      <children>
-                        <TextField id="server-address" alignment="CENTER" focusTraversable="false" layoutX="47.0" layoutY="69.0" promptText="Server Address" style="-fx-background-color: #2d3b53; -fx-border-color: #8A8A8A; -fx-text-fill: white; -fx-border-radius: 10px; -fx-background-radius: 10px;">
+                        <TextField id="server-address" alignment="CENTER" focusTraversable="false" layoutX="47.0" layoutY="69.0" onKeyReleased="#addressOnKeyReleased" promptText="Server Address" style="-fx-background-color: #2d3b53; -fx-border-color: #8A8A8A; -fx-text-fill: white; -fx-border-radius: 10px; -fx-background-radius: 10px;">
                            <font>
                               <Font name="Bona Nova SC Regular" size="24.0" />
                            </font>
                         </TextField>
-                        <TextField id="server-control-port" alignment="CENTER" focusTraversable="false" layoutX="142.0" layoutY="135.0" prefHeight="37.0" prefWidth="116.0" promptText="Port (5222)" style="-fx-background-color: #2d3b53; -fx-text-fill: white; -fx-border-color: #8A8A8A; -fx-border-radius: 10px; -fx-background-radius: 10px;">
+                        <TextField id="server-control-port" alignment="CENTER" focusTraversable="false" layoutX="142.0" layoutY="135.0" onKeyReleased="#portOnKeyReleased" prefHeight="37.0" prefWidth="116.0" promptText="Port (5222)" style="-fx-background-color: #2d3b53; -fx-text-fill: white; -fx-border-color: #8A8A8A; -fx-border-radius: 10px; -fx-background-radius: 10px;">
                            <font>
                               <Font name="Bona Nova SC Regular" size="18.0" />
                            </font>

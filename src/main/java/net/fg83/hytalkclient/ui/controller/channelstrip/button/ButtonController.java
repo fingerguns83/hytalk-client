@@ -25,6 +25,7 @@ public class ButtonController {
     public void setup(){
         setButtonColor();
         setButtonText();
+        styleLimiterButton();
     }
 
     public ButtonType getButtonType() {
@@ -37,22 +38,22 @@ public class ButtonController {
     public void setButtonColor(){
         MIXER_BUTTON_LABEL.setStyle("-fx-text-fill: black;");
         switch (buttonType){
-            case MUTE:
-                buttonColor = "red";
-                break;
-            case NOISE_REDUCTION:
-                buttonColor = "gold";
-                break;
+            case MUTE -> { buttonColor = "red"; }
+            case NOISE_REDUCTION -> { buttonColor = "gold"; }
+            case LIMITER -> { buttonColor = "orange"; }
         }
     }
     public void setButtonText(){
         switch (buttonType){
-            case MUTE:
-                MIXER_BUTTON_LABEL.setText("M");
-                break;
-            case NOISE_REDUCTION:
-                MIXER_BUTTON_LABEL.setText("NR");
-                break;
+            case MUTE -> { MIXER_BUTTON_LABEL.setText("M"); }
+            case NOISE_REDUCTION -> { MIXER_BUTTON_LABEL.setText("NR"); }
+            case LIMITER -> { MIXER_BUTTON_LABEL.setText("\uD802\uDCEB"); }
+        }
+    }
+
+    public void styleLimiterButton(){
+        if (buttonType == ButtonType.LIMITER){
+            MIXER_BUTTON_LABEL.rotateProperty().set(-90);
         }
     }
 
@@ -80,8 +81,8 @@ public class ButtonController {
     }
 
     public void bindControlToHotkey(MouseEvent mouseEvent) {
-        if (!mouseEvent.getButton().equals(MouseButton.SECONDARY)){ return; }
+        /*if (!mouseEvent.getButton().equals(MouseButton.SECONDARY)){ return; }
 
-        MIXER_BUTTON_LABEL.setStyle("-fx-text-fill: violet;");
+        MIXER_BUTTON_LABEL.setStyle("-fx-text-fill: violet;");*/
     }
 }

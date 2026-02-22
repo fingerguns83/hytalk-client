@@ -20,8 +20,11 @@ public abstract class AudioStream {
     // Audio level monitoring (0.0 - 1.0)
     protected final AtomicReference<Float> currentLevel = new AtomicReference<>(0.0f);
 
-    // Gain control (0.0 - 2.0, where 1.0 = unity)
+    // Gain control (0.0 - 1.25, where 1.0 = unity)
     protected final AtomicReference<Float> gain = new AtomicReference<>(1.0f);
+
+    // Proximity attenuation trim (0.0 - 1.0, where 1.0 = full volume, independent of fader gain)
+    protected final AtomicReference<Float> attenuation = new AtomicReference<>(0.0f);
 
     // Mute state
     protected final AtomicBoolean muted = new AtomicBoolean(false);
@@ -56,6 +59,14 @@ public abstract class AudioStream {
     public float getGain() {
         return gain.get();
     }
+
+    public void setAttenuation(float attenuation) {
+        this.attenuation.set(Math.max(0.0f, Math.min(1.0f, attenuation)));
+    }
+    public float getAttenuation() {
+        return attenuation.get();
+    }
+
 
     /**
      * Set the mute state.
@@ -127,8 +138,13 @@ public abstract class AudioStream {
      * @return Gained and clamped sample
      */
     protected short applyGainToSample(short sample, float gain) {
-        float gained = sample * gain;
+        float gained = sample * gain * attenuation.get();
         gained = Math.max(-32768, Math.min(32767, gained));
         return (short) gained;
+    }
+    protected float applyGainToSample(float sample, float gain) {
+        float gained = sample * gain * attenuation.get();
+        gained = Math.max(-32768, Math.min(32767, gained));
+        return (float) gained;
     }
 }

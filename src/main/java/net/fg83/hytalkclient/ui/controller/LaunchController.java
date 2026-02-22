@@ -5,7 +5,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import net.fg83.hytalkclient.util.AppConstants;
-import net.fg83.hytalkclient.ui.event.ViewEvent;
+import net.fg83.hytalkclient.ui.event.view.ViewEvent;
 
 import java.io.IOException;
 import java.time.Instant;

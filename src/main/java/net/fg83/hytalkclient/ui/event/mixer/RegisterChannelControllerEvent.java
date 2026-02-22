@@ -1,4 +1,4 @@
-package net.fg83.hytalkclient.ui.event;
+package net.fg83.hytalkclient.ui.event.mixer;
 
 import javafx.event.Event;
 import javafx.event.EventType;
@@ -10,7 +10,7 @@ public class RegisterChannelControllerEvent extends Event {
     public static final EventType<RegisterChannelControllerEvent> REGISTER_CHANNEL_CONTROLLER_EVENT = new EventType<>(Event.ANY, "REGISTER_CHANNEL_CONTROLLER_EVENT");
 
     private final UUID playerUUID;
-    private ChannelStripController controller;
+    private final ChannelStripController controller;
     private boolean isInput = false;
     private boolean isOutput = false;
 

@@ -3,9 +3,11 @@ package net.fg83.hytalkclient.ui.controller;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import net.fg83.hytalkclient.ui.event.ConnectionSetupEvent;
-import net.fg83.hytalkclient.ui.event.ViewEvent;
+import net.fg83.hytalkclient.ui.event.view.ViewEvent;
 import net.fg83.hytalkclient.util.AppConstants;
 
 public class ConnectionController {
@@ -40,6 +42,17 @@ public class ConnectionController {
             System.out.println("Attempting connection to " + serverAddress + ":" + serverPort);
             main.fireEvent(new ConnectionSetupEvent(serverAddress, serverPortInt));
             main.fireEvent(new ViewEvent(ViewEvent.SHOW_CONNECTION_PENDING_VIEW));
+        }
+    }
+
+    public void addressOnKeyReleased(KeyEvent keyEvent) {
+        if (keyEvent.getCode().equals(KeyCode.ENTER)) {
+            attemptConnection(null);
+        }
+    }
+    public void portOnKeyReleased(KeyEvent keyEvent) {
+        if (keyEvent.getCode().equals(KeyCode.ENTER)) {
+            attemptConnection(null);
         }
     }
 }

@@ -1,4 +1,4 @@
-package net.fg83.hytalkclient.ui.event;
+package net.fg83.hytalkclient.ui.event.view;
 
 import javafx.event.Event;
 import javafx.event.EventType;

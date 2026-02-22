@@ -3,6 +3,7 @@ package net.fg83.hytalkclient.service;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.layout.AnchorPane;
+
 import java.io.IOException;
 import java.net.URL;
 
@@ -13,7 +14,9 @@ public class ViewNavigationManager {
         this.rootPane = rootPane;
     }
 
-    public <T> T navigateToView(URL fxmlPath, ViewConfigurator<T> configurator) throws IOException {
+    public <T> T navigateToView(URL fxmlPath, ViewConfigurator<T> configurator, double width, double height) throws IOException {
+        setDimensions(width, height);
+
         FXMLLoader loader = new FXMLLoader(fxmlPath);
         Parent view = loader.load();
         T controller = loader.getController();
@@ -26,10 +29,6 @@ public class ViewNavigationManager {
         }
 
         return controller;
-    }
-    public <T> T navigateToView(URL fxmlPath, ViewConfigurator<T> configurator, double width, double height) throws IOException {
-        setDimensions(width, height);
-        return navigateToView(fxmlPath, configurator);
     }
 
     @FunctionalInterface

@@ -27,6 +27,7 @@ import static net.fg83.hytalkclient.HytalkClientApplication.getView;
 public class ConnectionManager {
     private final ApplicationState applicationState;
     private final List<Consumer<MessageEvent>> messageHandlers = new ArrayList<>();
+    private String serverAddress;
 
     private ControlSocketConnection connection;
 
@@ -35,20 +36,17 @@ public class ConnectionManager {
     }
 
     public void connect(String serverAddress, int serverPort) {
+        this.serverAddress = serverAddress;
         try {
             URI serverURI = new URI("ws://" + serverAddress + ":" + serverPort);
             connection = new ControlSocketConnection(serverURI, this::handleOpen, this::handleMessage, this::handleError, this::handleClose);
             connection.connect();
         } catch (URISyntaxException e) {
             applicationState.getErrorDialogManager().showError("Connection Error", "Invalid server address: " + e.getMessage());
+            reshowConnectionView();
         }
 
-        try {
-            applicationState.getViewNavigationManager().navigateToView(getView("subviews/ConnectionView.fxml"), null);
-        }
-        catch (IOException e) {
-            applicationState.getErrorDialogManager().showError("View Error", "Failed to load view: " + e.getMessage());
-        }
+
     }
 
     public void disconnect() {
@@ -83,7 +81,19 @@ public class ConnectionManager {
         switch (type) {
             case INFO -> {
                 JsonObject dataObj = data.getAsJsonObject();
-                System.out.println("Server version: " + dataObj.get("server_version").getAsString());
+
+                String protocolVersion = dataObj.get("protocol_version").getAsString();
+                if (!protocolVersion.equals(AppConstants.PROTO_VERSION)){
+                    connection.close();
+                    applicationState.getErrorDialogManager().showError(
+                            "Connection Error",
+                            "Invalid protocol version [" + AppConstants.PROTO_VERSION + "]. (Server supports " + protocolVersion + ")");
+                }
+
+                int audioPort = dataObj.get("audio_port").getAsInt();
+                applicationState.getAudioNetworkManager().setupUdpClient(connection.getRemoteSocketAddress().getHostName(), audioPort, applicationState);
+                int attenuationDistance = dataObj.get("attenuation_distance").getAsInt();
+                applicationState.getAudioStreamManager().setAttenuationDistance(attenuationDistance);
             }
             case PAIR -> {
                 JsonObject dataObj = data.getAsJsonObject();
@@ -100,11 +110,13 @@ public class ConnectionManager {
                         UUID.fromString(dataObj.get("player_uuid").getAsString()),
                         true
                 ));
+
                 connection.send(MessageBuilder.build(MessageType.ACK, new JsonObject()));
             }
             case POSITION_DATA -> {
                 JsonArray dataArray = data.getAsJsonArray();
                 applicationState.getPlayerManager().updateVoiceChatPlayers(Location.parsePlayerLocations(dataArray));
+                applicationState.getAudioStreamManager().updatePlayerAttenuation(applicationState.getPlayerManager().getVoiceChatPlayers());
 
             }
             case GROUP_DATA, PING, PONG -> {
@@ -123,6 +135,7 @@ public class ConnectionManager {
 
     private void handleError(Exception ex) {
         applicationState.getErrorDialogManager().showError("Connection Error", "An error occurred: " + ex.getMessage());
+        reshowConnectionView();
     }
 
     private void handleClose(int code, String reason, boolean remote) {
@@ -131,6 +144,9 @@ public class ConnectionManager {
                 "Connection Closed",
                 String.format("Connection closed by %s\nCode: %d\nReason: %s", source, code, reason)
         );
+        reshowConnectionView();
+    }
+    private void reshowConnectionView(){
         try {
             applicationState.getViewNavigationManager().navigateToView(
                     getView("subviews/ConnectionView.fxml"),

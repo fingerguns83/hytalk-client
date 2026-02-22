@@ -9,7 +9,7 @@
     <Button fx:id="MIXER_BUTTON_ROOT" focusTraversable="false" maxHeight="36.0" maxWidth="36.0" minHeight="36.0" minWidth="36.0" onMouseClicked="#bindControlToHotkey" onMouseReleased="#toggleButtonFeature" prefHeight="36.0" prefWidth="36.0" styleClass="mixer-button" text="">
         <graphic>
             <StackPane maxHeight="34.0" maxWidth="34.0" minHeight="34.0" minWidth="34.0" prefHeight="34.0" prefWidth="34.0" styleClass="mixer-button-inner">
-                <Label fx:id="MIXER_BUTTON_LABEL" alignment="CENTER" focusTraversable="false" maxHeight="34.0" maxWidth="34.0" minHeight="34.0" minWidth="34.0" prefHeight="34.0" prefWidth="34.0" styleClass="mixer-button-label">
+                <Label fx:id="MIXER_BUTTON_LABEL" alignment="CENTER" focusTraversable="false" minHeight="34.0" minWidth="34.0" prefHeight="34.0" prefWidth="34.0" styleClass="mixer-button-label">
                     <font>
                         <Font name="SansSerif Regular" />
                     </font>

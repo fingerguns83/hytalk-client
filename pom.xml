@@ -31,7 +31,11 @@
             <artifactId>javafx-fxml</artifactId>
             <version>25.0.2</version>
         </dependency>
-
+        <dependency>
+            <groupId>net.datafaker</groupId>
+            <artifactId>datafaker</artifactId>
+            <version>2.5.4</version>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -154,9 +158,12 @@
                 <executions>
                     <execution>
                         <id>mac</id>
+                        <goals>
+                            <goal>jpackage</goal>
+                        </goals>
                         <configuration>
                             <icon>${project.basedir}/icons/icon.icns</icon>
-                            <resourceDir>${project.basedir}/src/main/resources/macos</resourceDir>
+                            <resourceDir>${project.basedir}/src/main/resources</resourceDir>
                         </configuration>
                     </execution>
                     <execution>
