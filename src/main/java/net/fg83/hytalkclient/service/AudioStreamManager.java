@@ -242,7 +242,6 @@ public class AudioStreamManager {
             float attenuation = player.calculateAttenuation(attenuationDistance);
             if (stream != null) {
                 stream.setAttenuation(player.calculateAttenuation(attenuationDistance));
-                System.out.println("Set attenuation to " + attenuation + " for " + player.getPlayerName());
             }
         }
     }

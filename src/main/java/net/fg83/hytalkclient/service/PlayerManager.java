@@ -42,7 +42,6 @@ public class PlayerManager {
             VoiceChatPlayer voiceChatPlayer;
             if (clientPlayer.getPlayerId().equals(uuid)) {
                 clientPlayer.setPlayerLocation(player.getPlayerLocation());
-                System.out.println("Player updated: " + clientPlayer.getPlayerName() + " [Distance: " + clientPlayer.getCurrentDistance() + "]");
                 return;
             }
 
@@ -57,8 +56,7 @@ public class PlayerManager {
                 notifyListeners(new PlayerChangeEvent.PlayerAddedEvent(voiceChatPlayer));
             }
 
-            double distance = voiceChatPlayer.calculateDistance(clientPlayer.getPlayerLocation());
-            System.out.println("Player updated: " + player.getPlayerName() + " [Distance: " + voiceChatPlayer.getCurrentDistance() + "]");
+            voiceChatPlayer.calculateDistance(clientPlayer.getPlayerLocation());
         });
 
         List<UUID> toRemove = this.voiceChatPlayers.keySet().stream()

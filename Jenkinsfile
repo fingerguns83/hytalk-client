@@ -10,7 +10,6 @@ pipeline {
     stages {
         stage('Build All Platforms') {
             parallel {
-
                 //stage('Mac AMD') {
                 //    agent { label 'mac && amd' }
                 //    steps {
@@ -29,6 +28,47 @@ pipeline {
                     agent { label 'mac && arm' }
                     steps {
                         sh 'mvn clean package jpackage:jpackage@mac'
+
+                        withCredentials([
+                            file(credentialsId: 'Apple-Dev-ID-Cert-2026', variable: 'MAC_CERT'),
+                            string(credentialsId: 'mac-cert-pass', variable: 'MAC_CERT_PASS')
+                        ]) {
+                            sh '''
+                            security create-keychain -p buildpass build.keychain
+                            security default-keychain -s build.keychain
+                            security unlock-keychain -p buildpass build.keychain
+
+                            security import $MAC_CERT -k build.keychain -P $MAC_CERT_PASS -T /usr/bin/codesign
+
+                            APP_PATH=$(find target -name "*.app" -type d | head -n 1)
+
+                            echo "Signing app at $APP_PATH"
+
+                            codesign --deep --force --options runtime \
+                              --verify --verbose \
+                              --sign "Developer ID Application: Steven Backenstoes (6J8PZ8D7V4)" \
+                              "$APP_PATH"
+
+                            codesign --verify --deep --strict --verbose=2 "$APP_PATH"
+
+                            DMG_PATH=$(find target -name "*.dmg" | head -n 1)
+
+                            echo "Signing DMG at $DMG_PATH"
+
+                            codesign --force --verify --verbose \
+                              --sign "Developer ID Application: Steven Backenstoes (6J8PZ8D7V4)" \
+                              "$DMG_PATH"
+
+                            codesign --verify --verbose=2 "$DMG_PATH"
+
+                            xcrun notarytool submit "$DMG_PATH" \
+                              --keychain-profile "FG_SIGNING_PROFILE" \
+                              --wait
+
+                            xcrun stapler staple "$DMG_PATH"
+                            '''
+                        }
+
                         sh 'mkdir -p artifacts/mac-arm64'
                         sh 'cp -r target/* artifacts/mac-arm64/'
                     }
@@ -38,6 +78,7 @@ pipeline {
                         }
                     }
                 }
+
 
                 stage('Win AMD') {
                     agent { label 'windows && amd' }

@@ -109,6 +109,7 @@ public class ChannelStripController {
         initializeFaderCap();
         initializeFaderLocation();
         initializeVUMeter();
+        initializeButtons();
     }
 
     protected void initializeScribbleStrip() {

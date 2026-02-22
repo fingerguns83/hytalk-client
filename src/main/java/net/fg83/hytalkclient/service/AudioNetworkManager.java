@@ -63,6 +63,8 @@ public class AudioNetworkManager {
             return; // Not ready to send
         }
 
+
+
         try {
             // Convert PCM bytes to shorts for Opus encoder
             for (int i = 0; i < AppConstants.Audio.FRAME_SIZE; i++) {

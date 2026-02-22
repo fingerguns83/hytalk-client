@@ -155,7 +155,7 @@ public class OutputAudioStream extends AudioStream {
         Arrays.fill(stereoBuffer, (byte) 0);
 
         // If muted or no streams, output silence
-        if (muted.get() || playerStreams.isEmpty()) {
+        if (playerStreams.isEmpty()) {
             updateLevel(0.0f);
             return;
         }
@@ -166,11 +166,16 @@ public class OutputAudioStream extends AudioStream {
 
         // Sum all player streams (mono input)
         for (PlayerAudioStream stream : playerStreams.values()) {
-            if (!stream.isPlaying() || stream.isMuted()) {
+            if (!stream.isPlaying()) {
                 continue;
             }
 
             float[] playerData = stream.getNextFrame();
+
+            if (muted.get() || stream.isMuted()) {
+                continue;
+            }
+
             if (playerData != null && playerData.length == AppConstants.Audio.FRAME_SIZE) {
                 activeStreams++;
 

@@ -102,13 +102,8 @@ public abstract class AudioStream {
      * @param newLevel The new peak level from current frame (0.0 - 1.0)
      */
     protected void updateLevel(float newLevel) {
-        if (muted.get()) {
-            currentLevel.set(0.0f);
-        } else {
-            // Smooth decay for better visualization
-            float decayed = currentLevel.get() * 0.95f;
-            currentLevel.set(Math.max(newLevel, decayed));
-        }
+        float decayed = currentLevel.get() * 0.95f;
+        currentLevel.set(Math.max(newLevel, decayed));
     }
 
     /**
@@ -138,12 +133,13 @@ public abstract class AudioStream {
      * @return Gained and clamped sample
      */
     protected short applyGainToSample(short sample, float gain) {
-        float gained = sample * gain * attenuation.get();
+        float gained = sample * gain * (isMuted() ? 0.0f : 1.0f);
         gained = Math.max(-32768, Math.min(32767, gained));
         return (short) gained;
     }
+
     protected float applyGainToSample(float sample, float gain) {
-        float gained = sample * gain * attenuation.get();
+        float gained = sample * gain * attenuation.get() * (isMuted() ? 0.0f : 1.0f);
         gained = Math.max(-32768, Math.min(32767, gained));
         return (float) gained;
     }
