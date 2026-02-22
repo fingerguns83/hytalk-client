@@ -45,16 +45,16 @@ public abstract class AudioStream {
     /**
      * Set the gain multiplier.
      *
-     * @param gain Gain multiplier (0.0 - 2.0, where 1.0 = unity)
+     * @param gain Gain multiplier (0.0 - 1.25, where 1.0 = unity)
      */
     public void setGain(float gain) {
-        this.gain.set(Math.max(0.0f, Math.min(2.0f, gain)));
+        this.gain.set(Math.max(0.0f, Math.min(1.25f, gain)));
     }
 
     /**
      * Get the current gain multiplier.
      *
-     * @return Current gain (0.0 - 2.0)
+     * @return Current gain (0.0 - 1.25)
      */
     public float getGain() {
         return gain.get();

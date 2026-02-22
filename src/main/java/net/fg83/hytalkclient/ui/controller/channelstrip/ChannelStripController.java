@@ -1,6 +1,8 @@
 package net.fg83.hytalkclient.ui.controller.channelstrip;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.Cursor;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
@@ -9,9 +11,12 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Line;
+import net.fg83.hytalkclient.HytalkClientApplication;
 import net.fg83.hytalkclient.model.ApplicationState;
+import net.fg83.hytalkclient.ui.controller.channelstrip.button.ButtonController;
 import net.fg83.hytalkclient.ui.event.mixer.GainChangeEvent;
 import net.fg83.hytalkclient.util.AppConstants;
+import net.fg83.hytalkclient.util.ButtonType;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -21,6 +26,8 @@ import static java.lang.Math.round;
 public class ChannelStripController {
     @FXML
     private VBox CHANNEL_STRIP_ROOT;
+    @FXML
+    private HBox CHANNEL_BUTTON_HOLDER;
 
     protected ImageView faderCap;
     protected Line VUMeter;
@@ -118,6 +125,16 @@ public class ChannelStripController {
     }
     protected void initializeVUMeter() {
         VUMeter = (Line) CHANNEL_STRIP_ROOT.lookup(".vu-meter-mask");
+    }
+
+    protected void initializeButtons() throws IOException {
+        FXMLLoader muteButtonloader = new FXMLLoader(HytalkClientApplication.class.getResource("widget/button/Button.fxml"));
+        StackPane muteButton = (StackPane) muteButtonloader.load();
+        ButtonController muteButtonController = muteButtonloader.getController();
+        muteButtonController.setButtonType(ButtonType.MUTE);
+        HBox.setMargin(muteButton, new Insets(0, 10, 0, 0));
+        CHANNEL_BUTTON_HOLDER.getChildren().add(muteButton);
+        muteButtonController.setup(this);
     }
 
     protected void renderFader(double location) {

@@ -27,10 +27,6 @@ public class InputChannelStripController extends ChannelStripController {
     @FXML
     private HBox CHANNEL_BUTTON_HOLDER;
 
-    private StackPane muteButton;
-
-    private StackPane nrButton;
-
     @FXML
     private MenuButton INPUT_DEVICE_SELECTOR;
 
@@ -55,9 +51,10 @@ public class InputChannelStripController extends ChannelStripController {
         VUMeter = (Line) INPUT_CHANNEL_STRIP_ROOT.lookup(".vu-meter-mask");
     }
 
+    @Override
     protected void initializeButtons() throws IOException {
         FXMLLoader muteButtonloader = new FXMLLoader(HytalkClientApplication.class.getResource("widget/button/Button.fxml"));
-        muteButton = (StackPane) muteButtonloader.load();
+        StackPane muteButton = (StackPane) muteButtonloader.load();
         ButtonController muteButtonController = muteButtonloader.getController();
         muteButtonController.setButtonType(ButtonType.MUTE);
         HBox.setMargin(muteButton, new Insets(0, 10, 0, 0));
@@ -66,7 +63,7 @@ public class InputChannelStripController extends ChannelStripController {
 
 
         FXMLLoader nrButtonLoader = new FXMLLoader(HytalkClientApplication.class.getResource("widget/button/Button.fxml"));
-        nrButton = (StackPane) nrButtonLoader.load();
+        StackPane nrButton = (StackPane) nrButtonLoader.load();
         ButtonController nrButtonController = nrButtonLoader.getController();
         nrButtonController.setButtonType(ButtonType.NOISE_REDUCTION);
         CHANNEL_BUTTON_HOLDER.getChildren().add(nrButton);
