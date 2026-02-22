@@ -53,15 +53,11 @@ public class InputChannelStripController extends ChannelStripController {
 
     @Override
     protected void initializeButtons() throws IOException {
-        FXMLLoader muteButtonloader = new FXMLLoader(HytalkClientApplication.class.getResource("widget/button/Button.fxml"));
-        StackPane muteButton = (StackPane) muteButtonloader.load();
-        ButtonController muteButtonController = muteButtonloader.getController();
-        muteButtonController.setButtonType(ButtonType.MUTE);
-        HBox.setMargin(muteButton, new Insets(0, 10, 0, 0));
-        CHANNEL_BUTTON_HOLDER.getChildren().add(muteButton);
-        muteButtonController.setup(this);
+        initializeMuteButton(false);
+        //initializeNoiseReductionButton();
+    }
 
-
+    private void initializeNoiseReductionButton() throws IOException{
         FXMLLoader nrButtonLoader = new FXMLLoader(HytalkClientApplication.class.getResource("widget/button/Button.fxml"));
         StackPane nrButton = (StackPane) nrButtonLoader.load();
         ButtonController nrButtonController = nrButtonLoader.getController();
@@ -70,7 +66,7 @@ public class InputChannelStripController extends ChannelStripController {
         nrButtonController.setup(this);
     }
 
-    protected void initializeDeviceSelector(ApplicationState applicationState) {
+    private void initializeDeviceSelector(ApplicationState applicationState) {
         AudioIOManager.AudioDevice selected = applicationState.getAudioStreamManager().getAudioIOManager().getSelectedInputDevice();
         if (selected == null) {
             INPUT_DEVICE_SELECTOR.getTooltip().setText("Default Input Device");

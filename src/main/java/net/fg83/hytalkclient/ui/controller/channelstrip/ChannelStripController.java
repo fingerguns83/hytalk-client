@@ -129,11 +129,16 @@ public class ChannelStripController {
     }
 
     protected void initializeButtons() throws IOException {
+        initializeMuteButton(false);
+    }
+    protected void initializeMuteButton(boolean addMargin) throws IOException {
         FXMLLoader muteButtonloader = new FXMLLoader(HytalkClientApplication.class.getResource("widget/button/Button.fxml"));
         StackPane muteButton = (StackPane) muteButtonloader.load();
         ButtonController muteButtonController = muteButtonloader.getController();
         muteButtonController.setButtonType(ButtonType.MUTE);
-        HBox.setMargin(muteButton, new Insets(0, 10, 0, 0));
+        if (addMargin) {
+            HBox.setMargin(muteButton, new Insets(0, 10, 0, 0));
+        }
         CHANNEL_BUTTON_HOLDER.getChildren().add(muteButton);
         muteButtonController.setup(this);
     }

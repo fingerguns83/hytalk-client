@@ -52,16 +52,13 @@ public class OutputChannelStripController extends ChannelStripController{
     protected void initializeVUMeter() {
         VUMeter = (Line) OUTPUT_CHANNEL_STRIP_ROOT.lookup(".vu-meter-mask");
     }
+    @Override
     protected void initializeButtons() throws IOException {
-        FXMLLoader muteButtonloader = new FXMLLoader(HytalkClientApplication.class.getResource("widget/button/Button.fxml"));
-        muteButton = (StackPane) muteButtonloader.load();
-        ButtonController muteButtonController = muteButtonloader.getController();
-        muteButtonController.setButtonType(net.fg83.hytalkclient.util.ButtonType.MUTE);
-        HBox.setMargin(muteButton, new Insets(0, 10, 0, 0));
-        CHANNEL_BUTTON_HOLDER.getChildren().add(muteButton);
-        muteButtonController.setup(this);
+        initializeMuteButton(false);
+        //initializeLimiterButton();
+    }
 
-
+    private void initializeLimiterButton() throws IOException {
         FXMLLoader limButtonLoader = new FXMLLoader(HytalkClientApplication.class.getResource("widget/button/Button.fxml"));
         limButton = (StackPane) limButtonLoader.load();
         ButtonController limButtonController = limButtonLoader.getController();
@@ -69,7 +66,8 @@ public class OutputChannelStripController extends ChannelStripController{
         CHANNEL_BUTTON_HOLDER.getChildren().add(limButton);
         limButtonController.setup(this);
     }
-    protected void initializeDeviceSelector(ApplicationState applicationState){
+
+    private void initializeDeviceSelector(ApplicationState applicationState){
         AudioIOManager.AudioDevice selected = applicationState.getAudioStreamManager().getAudioIOManager().getSelectedOutputDevice();
         if (selected == null) {
             OUTPUT_DEVICE_SELECTOR.getTooltip().setText("Default Output Device");
