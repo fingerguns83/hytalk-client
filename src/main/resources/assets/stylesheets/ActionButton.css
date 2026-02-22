@@ -1,0 +1,59 @@
+/* Wrapper */
+.wrapper {
+    -fx-background-color: #353434;
+    -fx-background-radius: 5;
+    -fx-padding: 3;
+    -fx-effect: innershadow(gaussian, #131313, 5, 0.5, 0, 0);
+    -fx-alignment: center;
+}
+
+/* Main Button */
+.action-button {
+    -fx-border-color: #131313;
+    -fx-border-width: 1;
+    -fx-border-radius: 3;
+    -fx-background-radius: 3;
+    -fx-cursor: hand;
+    -fx-background-color: linear-gradient(to bottom right, #353434 0%, #2f2f2f 100%);
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+}
+
+.action-button-inner {
+    -fx-background-radius: 2;
+    -fx-background-color:
+            linear-gradient(#353434, #2f2f2f);
+    -fx-effect: innershadow(gaussian, #2f2f2f, 2, 0.5, -2, 2);
+    -fx-alignment: center;
+}
+
+/* Label */
+.action-button-label {
+    -fx-font-weight: bold;
+    -fx-font-color: green;
+    -fx-font-size: 24px;
+}
+
+.action-button:hover {
+    -fx-background-color: linear-gradient(to bottom right, #353434 0%, #2f2f2f 100%);
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+}
+
+.action-button:focused {
+    -fx-background-color: linear-gradient(to bottom right, #353434 0%, #2f2f2f 100%);
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+}
+
+/* Pressed state */
+.action-button:pressed {
+    -fx-scale-x: 0.97;
+    -fx-scale-y: 0.9;
+}
+
+.action-button:pressed .action-button-inner {
+    -fx-background-color:
+            linear-gradient(#2f2f2f, #3a3a3a);
+    -fx-effect: innershadow(gaussian, #2f2f2f, 2, 0.5, -2, -2);
+}

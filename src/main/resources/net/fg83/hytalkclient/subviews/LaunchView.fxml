@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="LAUNCH_ROOT" prefHeight="450.0" prefWidth="400.0" style="-fx-background-color: #19212E;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.fg83.hytalkclient.ui.controller.LaunchController">
+<AnchorPane fx:id="LAUNCH_ROOT" prefHeight="450.0" prefWidth="400.0" style="-fx-background-color: #353434;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.fg83.hytalkclient.ui.controller.LaunchController">
    <children>
       <VBox alignment="CENTER" prefHeight="450.0" prefWidth="400.0">
          <children>

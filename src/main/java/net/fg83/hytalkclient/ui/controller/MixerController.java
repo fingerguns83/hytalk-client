@@ -57,17 +57,12 @@ public class MixerController {
 
     private final Map<VoiceChatPlayer, Pane> playerFaders = new HashMap<>();
 
-    /**
-     * Setup the mixer with a player change listener callback.
-     * The parent controller provides this callback to bridge the gap.
-     */
     public void setup(ApplicationState applicationState) throws IOException {
         initializeFaders(applicationState);
         initializePlayerChannelsContainer();
 
-        // Register through parent, but handle locally
         applicationState.getPlayerManager().addPlayerChangeListener(this::handlePlayerChange);
-        addDummyPlayers(10);
+        //addDummyPlayers(10);
     }
 
     private void initializeFaders(ApplicationState applicationState) throws IOException {

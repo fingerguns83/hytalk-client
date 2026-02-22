@@ -163,16 +163,9 @@ public class HytalkClientController {
             MessageType type = messageEvent.getType();
 
             switch (type) {
-                case PAIR -> {
-                    // Server sent pairing code, show pairing view
-                    CLIENT_ROOT.fireEvent(new ViewEvent(ViewEvent.SHOW_PAIRING_VIEW));
-                }
-                case READY -> {
-                    CLIENT_ROOT.fireEvent(new ViewEvent(ViewEvent.SHOW_MIXER_VIEW));
-                }
-                default -> {
-
-                }
+                case PAIR -> CLIENT_ROOT.fireEvent(new ViewEvent(ViewEvent.SHOW_PAIRING_VIEW));
+                case READY -> CLIENT_ROOT.fireEvent(new ViewEvent(ViewEvent.SHOW_MIXER_VIEW));
+                default -> {}
             }
         });
     }
@@ -213,8 +206,8 @@ public class HytalkClientController {
     private void setupMixerEventHandlers() {
         CLIENT_ROOT.addEventHandler(RegisterChannelControllerEvent.REGISTER_CHANNEL_CONTROLLER_EVENT, (RegisterChannelControllerEvent event) -> MixerEventHandler.handleControllerRegistration(event, applicationState));
         CLIENT_ROOT.addEventHandler(GainChangeEvent.PLAYER_GAIN_CHANGE_EVENT, (GainChangeEvent event) -> MixerEventHandler.handlePlayerGainChange(event, applicationState));
-        CLIENT_ROOT.addEventHandler(GainChangeEvent.INPUT_GAIN_CHANGE_EVENT, MixerEventHandler::handleInputGainChange);
-        CLIENT_ROOT.addEventHandler(GainChangeEvent.OUTPUT_GAIN_CHANGE_EVENT, MixerEventHandler::handleOutputGainChange);
+        CLIENT_ROOT.addEventHandler(GainChangeEvent.INPUT_GAIN_CHANGE_EVENT, (GainChangeEvent event) -> MixerEventHandler.handleInputGainChange(event, applicationState));
+        CLIENT_ROOT.addEventHandler(GainChangeEvent.OUTPUT_GAIN_CHANGE_EVENT, (GainChangeEvent event) -> MixerEventHandler.handleOutputGainChange(event, applicationState));
         CLIENT_ROOT.addEventHandler(ChannelMuteEvent.CHANNEL_MUTE_EVENT, (ChannelMuteEvent event) -> MixerEventHandler.handleChannelMuteEvent(event, applicationState));
 
         CLIENT_ROOT.addEventHandler(AudioDeviceEvent.INPUT_DEVICE_CHANGED, (AudioDeviceEvent event) -> MixerEventHandler.handleInputDeviceChange(event, applicationState));

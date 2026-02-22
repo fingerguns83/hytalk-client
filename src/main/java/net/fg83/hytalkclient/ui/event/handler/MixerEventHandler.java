@@ -29,10 +29,11 @@ public class MixerEventHandler {
         System.out.println("Gain change event received: " + event.getPlayerUUID());
         applicationState.getAudioStreamManager().getPlayerStream(event.getPlayerUUID()).setGain((float) (event.getGainPercentage() * 1.25F));
     }
-    public static void handleInputGainChange(GainChangeEvent event){
-
+    public static void handleInputGainChange(GainChangeEvent event, ApplicationState applicationState) {
+        applicationState.getAudioStreamManager().getInputStream().setGain((float) (event.getGainPercentage() * 1.25F));
     }
-    public static void handleOutputGainChange(GainChangeEvent event){
+    public static void handleOutputGainChange(GainChangeEvent event, ApplicationState applicationState) {
+        applicationState.getAudioStreamManager().getOutputStream().setGain((float) (event.getGainPercentage() * 1.25F));
     }
     public static void handleInputDeviceChange(AudioDeviceEvent event, ApplicationState applicationState){
         applicationState.getAudioStreamManager().getAudioIOManager().setSelectedInputDevice(event.getDevice());

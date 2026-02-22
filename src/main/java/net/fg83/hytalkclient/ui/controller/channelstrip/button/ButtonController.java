@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 
 import javafx.scene.control.Label;
+import javafx.scene.effect.Bloom;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import net.fg83.hytalkclient.ui.controller.channelstrip.ChannelStripController;
@@ -110,9 +111,11 @@ public class ButtonController {
     private void toggleButtonColor(){
         if (isEngaged) {
             MIXER_BUTTON_LABEL.setStyle("-fx-text-fill: black;");
+            MIXER_BUTTON_LABEL.setEffect(null);
         }
         else {
             MIXER_BUTTON_LABEL.setStyle("-fx-text-fill: " + buttonColor + ";");
+            MIXER_BUTTON_LABEL.setEffect(new Bloom());
         }
     }
 
