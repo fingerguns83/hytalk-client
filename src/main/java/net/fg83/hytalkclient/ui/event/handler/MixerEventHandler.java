@@ -4,6 +4,7 @@ import net.fg83.hytalkclient.model.ApplicationState;
 import net.fg83.hytalkclient.ui.controller.channelstrip.InputChannelStripController;
 import net.fg83.hytalkclient.ui.controller.channelstrip.OutputChannelStripController;
 import net.fg83.hytalkclient.ui.event.mixer.AudioDeviceEvent;
+import net.fg83.hytalkclient.ui.event.mixer.ChannelMuteEvent;
 import net.fg83.hytalkclient.ui.event.mixer.GainChangeEvent;
 import net.fg83.hytalkclient.ui.event.mixer.RegisterChannelControllerEvent;
 
@@ -50,5 +51,16 @@ public class MixerEventHandler {
         catch (LineUnavailableException e) {
             applicationState.getErrorDialogManager().showError("Audio Error", "Failed to restart audio output: " + e.getMessage());
         }
+    }
+    public static void handleChannelMuteEvent(ChannelMuteEvent event, ApplicationState applicationState) {
+        if (event.isInput()) {
+            applicationState.getAudioStreamManager().getInputStream().setMuted(event.isMuted());
+            return;
+        }
+        if (event.isOutput()) {
+            applicationState.getAudioStreamManager().getOutputStream().setMuted(event.isMuted());
+            return;
+        }
+        applicationState.getAudioStreamManager().getPlayerStream(event.getUuid()).setMuted(event.isMuted());
     }
 }

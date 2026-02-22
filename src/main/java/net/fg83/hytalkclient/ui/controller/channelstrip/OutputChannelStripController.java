@@ -59,7 +59,7 @@ public class OutputChannelStripController extends ChannelStripController{
         muteButtonController.setButtonType(net.fg83.hytalkclient.util.ButtonType.MUTE);
         HBox.setMargin(muteButton, new Insets(0, 10, 0, 0));
         CHANNEL_BUTTON_HOLDER.getChildren().add(muteButton);
-        muteButtonController.setup();
+        muteButtonController.setup(this);
 
 
         FXMLLoader limButtonLoader = new FXMLLoader(HytalkClientApplication.class.getResource("widget/button/Button.fxml"));
@@ -67,7 +67,7 @@ public class OutputChannelStripController extends ChannelStripController{
         ButtonController limButtonController = limButtonLoader.getController();
         limButtonController.setButtonType(ButtonType.LIMITER);
         CHANNEL_BUTTON_HOLDER.getChildren().add(limButton);
-        limButtonController.setup();
+        limButtonController.setup(this);
     }
     protected void initializeDeviceSelector(ApplicationState applicationState){
         AudioIOManager.AudioDevice selected = applicationState.getAudioStreamManager().getAudioIOManager().getSelectedOutputDevice();

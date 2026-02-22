@@ -62,7 +62,7 @@ public class InputChannelStripController extends ChannelStripController {
         muteButtonController.setButtonType(ButtonType.MUTE);
         HBox.setMargin(muteButton, new Insets(0, 10, 0, 0));
         CHANNEL_BUTTON_HOLDER.getChildren().add(muteButton);
-        muteButtonController.setup();
+        muteButtonController.setup(this);
 
 
         FXMLLoader nrButtonLoader = new FXMLLoader(HytalkClientApplication.class.getResource("widget/button/Button.fxml"));
@@ -70,7 +70,7 @@ public class InputChannelStripController extends ChannelStripController {
         ButtonController nrButtonController = nrButtonLoader.getController();
         nrButtonController.setButtonType(ButtonType.NOISE_REDUCTION);
         CHANNEL_BUTTON_HOLDER.getChildren().add(nrButton);
-        nrButtonController.setup();
+        nrButtonController.setup(this);
     }
 
     protected void initializeDeviceSelector(ApplicationState applicationState) {

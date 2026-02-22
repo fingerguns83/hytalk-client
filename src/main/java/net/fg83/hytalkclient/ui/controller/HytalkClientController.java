@@ -6,6 +6,7 @@ import javafx.scene.layout.AnchorPane;
 import net.fg83.hytalkclient.ui.event.*;
 import net.fg83.hytalkclient.ui.event.handler.MixerEventHandler;
 import net.fg83.hytalkclient.ui.event.mixer.AudioDeviceEvent;
+import net.fg83.hytalkclient.ui.event.mixer.ChannelMuteEvent;
 import net.fg83.hytalkclient.ui.event.mixer.GainChangeEvent;
 import net.fg83.hytalkclient.ui.event.mixer.RegisterChannelControllerEvent;
 import net.fg83.hytalkclient.ui.event.view.ResizeEvent;
@@ -214,6 +215,7 @@ public class HytalkClientController {
         CLIENT_ROOT.addEventHandler(GainChangeEvent.PLAYER_GAIN_CHANGE_EVENT, (GainChangeEvent event) -> MixerEventHandler.handlePlayerGainChange(event, applicationState));
         CLIENT_ROOT.addEventHandler(GainChangeEvent.INPUT_GAIN_CHANGE_EVENT, MixerEventHandler::handleInputGainChange);
         CLIENT_ROOT.addEventHandler(GainChangeEvent.OUTPUT_GAIN_CHANGE_EVENT, MixerEventHandler::handleOutputGainChange);
+        CLIENT_ROOT.addEventHandler(ChannelMuteEvent.CHANNEL_MUTE_EVENT, (ChannelMuteEvent event) -> MixerEventHandler.handleChannelMuteEvent(event, applicationState));
 
         CLIENT_ROOT.addEventHandler(AudioDeviceEvent.INPUT_DEVICE_CHANGED, (AudioDeviceEvent event) -> MixerEventHandler.handleInputDeviceChange(event, applicationState));
         CLIENT_ROOT.addEventHandler(AudioDeviceEvent.OUTPUT_DEVICE_CHANGED, (AudioDeviceEvent event) -> MixerEventHandler.handleOutputDeviceChange(event, applicationState));

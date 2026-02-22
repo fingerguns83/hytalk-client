@@ -49,6 +49,7 @@ public class VoiceChatPlayer {
 
     public float calculateAttenuation(int attenuationDistance) {
         float normalized = (float) Math.min(currentDistance / attenuationDistance, 1.0);
-        return 1.0f - (float) Math.sqrt(normalized);
+        double k = 4.0;
+        return (float) ((Math.exp(-k * normalized) - Math.exp(-k)) / (1.0 - Math.exp(-k)));
     }
 }

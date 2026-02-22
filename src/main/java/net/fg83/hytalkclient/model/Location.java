@@ -35,6 +35,9 @@ public class Location {
 
     /* STATIC UTILITY METHODS */
     public static double calculateDistance(Location location1, Location location2){
+        if (location1 == null || location2 == null) {
+            return Double.MAX_VALUE;
+        }
         if (!location1.getWorldId().equals(location2.getWorldId())){
             return -1;
         }

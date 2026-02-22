@@ -6,6 +6,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import net.fg83.hytalkclient.ui.controller.channelstrip.ChannelStripController;
+import net.fg83.hytalkclient.ui.controller.channelstrip.InputChannelStripController;
+import net.fg83.hytalkclient.ui.controller.channelstrip.OutputChannelStripController;
+import net.fg83.hytalkclient.ui.event.mixer.ChannelMuteEvent;
 import net.fg83.hytalkclient.util.ButtonType;
 
 
@@ -22,11 +26,16 @@ public class ButtonController {
 
     private boolean isEngaged = false;
 
-    public void setup(){
+    private ChannelStripController parentController;
+
+    public void setup(ChannelStripController parentController) {
+        this.parentController = parentController;
+
         setButtonColor();
         setButtonText();
         styleLimiterButton();
     }
+
 
     public ButtonType getButtonType() {
         return buttonType;
@@ -67,17 +76,41 @@ public class ButtonController {
         isEngaged = engaged;
     }
 
+    public ChannelStripController getParentController() {
+        return parentController;
+    }
+
     /* EVENT HANDLERS */
-    public void toggleButtonFeature(MouseEvent mouseEvent) {
+    public void onButtonPress(MouseEvent mouseEvent) {
         if (!mouseEvent.getButton().equals(MouseButton.PRIMARY)){ return; }
+        toggleButtonColor();
+        setEngaged(!isEngaged);
+        toggleButtonFeature();
+    }
+
+    private void toggleButtonFeature(){
+        switch (buttonType){
+            case MUTE -> {
+                if (parentController instanceof InputChannelStripController) {
+                    MIXER_BUTTON_ROOT.fireEvent(new ChannelMuteEvent(null, true, false, isEngaged));
+                }
+                else if (parentController instanceof OutputChannelStripController) {
+                    MIXER_BUTTON_ROOT.fireEvent(new ChannelMuteEvent(null, false, true, isEngaged));
+                }
+                else {
+                    MIXER_BUTTON_ROOT.fireEvent(new ChannelMuteEvent(parentController.getPlayerId(), false, false, isEngaged));
+                }
+            }
+            default -> {}
+        }
+    }
+    private void toggleButtonColor(){
         if (isEngaged) {
             MIXER_BUTTON_LABEL.setStyle("-fx-text-fill: black;");
         }
         else {
             MIXER_BUTTON_LABEL.setStyle("-fx-text-fill: " + buttonColor + ";");
         }
-
-        setEngaged(!isEngaged);
     }
 
     public void bindControlToHotkey(MouseEvent mouseEvent) {

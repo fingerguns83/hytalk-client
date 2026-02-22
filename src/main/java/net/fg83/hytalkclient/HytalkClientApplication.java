@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import net.fg83.hytalkclient.service.*;
 import net.fg83.hytalkclient.util.AppConstants;
@@ -22,6 +23,7 @@ public class HytalkClientApplication extends Application {
     public void start(Stage stage) throws IOException {
         // Setup main window
         stage.setTitle("Hytalk Client v" + AppConstants.VERSION);
+        loadFonts();
         FXMLLoader mainView = new FXMLLoader(getView("HytalkClient.fxml"));
         Parent root = mainView.load();
         stage.setScene(new Scene(root));
@@ -47,5 +49,11 @@ public class HytalkClientApplication extends Application {
 
     public static URL getView(String viewName) {
         return HytalkClientController.class.getResource("/net/fg83/hytalkclient/" + viewName);
+    }
+
+    private void loadFonts() {
+        Font.loadFont(getClass().getResourceAsStream("/assets/fonts/BonaNovaSC-Regular.ttf"), 14);
+        Font.loadFont(getClass().getResourceAsStream("/assets/fonts/BonaNovaSC-Bold.ttf"), 14);
+        Font.loadFont(getClass().getResourceAsStream("/assets/fonts/BonaNovaSC-Italic.ttf"), 14);
     }
 }
