@@ -24,6 +24,5 @@ module net.fg83.hytalkclient {
     exports net.fg83.hytalkclient.ui.controller.channelstrip;
     exports net.fg83.hytalkclient.ui.controller.channelstrip.button;
     exports net.fg83.hytalkclient.util;
-
     exports org.concentus;
 }
