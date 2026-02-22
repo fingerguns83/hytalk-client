@@ -2,7 +2,6 @@ package net.fg83.hytalkclient.ui.controller.channelstrip;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -36,7 +35,7 @@ public class OutputChannelStripController extends ChannelStripController{
     private final ToggleGroup outputDeviceToggleGroup = new ToggleGroup();
 
     @Override
-    public void setup(ApplicationState applicationState) throws IOException {
+    public void setup(ApplicationState applicationState, boolean isDummy) throws IOException {
         initializeDeviceSelector(applicationState);
         initializeFaderCap();
         initializeFaderLocation();
@@ -60,7 +59,7 @@ public class OutputChannelStripController extends ChannelStripController{
 
     private void initializeLimiterButton() throws IOException {
         FXMLLoader limButtonLoader = new FXMLLoader(HytalkClientApplication.class.getResource("widget/button/Button.fxml"));
-        limButton = (StackPane) limButtonLoader.load();
+        limButton = limButtonLoader.load();
         ButtonController limButtonController = limButtonLoader.getController();
         limButtonController.setButtonType(ButtonType.LIMITER);
         CHANNEL_BUTTON_HOLDER.getChildren().add(limButton);

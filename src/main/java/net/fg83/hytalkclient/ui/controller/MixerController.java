@@ -153,7 +153,7 @@ public class MixerController {
         Parent channelRoot = loader.load();
 
         inputController = loader.getController();
-        inputController.setup(applicationState);
+        inputController.setup(applicationState, false);
 
         INPUT_CHANNEL = (Pane) channelRoot;
         INPUT_CHANNEL_HOLDER.getChildren().addFirst(channelRoot);
@@ -165,7 +165,7 @@ public class MixerController {
         Parent channelRoot = loader.load();
 
         outputController = loader.getController();
-        outputController.setup(applicationState);
+        outputController.setup(applicationState, false);
 
         OUTPUT_CHANNEL = (Pane) channelRoot;
         OUTPUT_CHANNEL_HOLDER.getChildren().addLast(channelRoot);

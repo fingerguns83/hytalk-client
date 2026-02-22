@@ -2,7 +2,6 @@ package net.fg83.hytalkclient.ui.controller.channelstrip;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.ToggleGroup;
@@ -34,7 +33,7 @@ public class InputChannelStripController extends ChannelStripController {
 
     /* Utility Methods */
     @Override
-    public void setup(ApplicationState applicationState) throws IOException {
+    public void setup(ApplicationState applicationState, boolean isDummy) throws IOException {
         initializeDeviceSelector(applicationState);
         initializeFaderCap();
         initializeFaderLocation();
@@ -59,7 +58,7 @@ public class InputChannelStripController extends ChannelStripController {
 
     private void initializeNoiseReductionButton() throws IOException{
         FXMLLoader nrButtonLoader = new FXMLLoader(HytalkClientApplication.class.getResource("widget/button/Button.fxml"));
-        StackPane nrButton = (StackPane) nrButtonLoader.load();
+        StackPane nrButton = nrButtonLoader.load();
         ButtonController nrButtonController = nrButtonLoader.getController();
         nrButtonController.setButtonType(ButtonType.NOISE_REDUCTION);
         CHANNEL_BUTTON_HOLDER.getChildren().add(nrButton);
