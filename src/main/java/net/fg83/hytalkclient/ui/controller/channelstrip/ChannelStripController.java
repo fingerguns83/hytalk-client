@@ -41,6 +41,8 @@ public class ChannelStripController {
     protected double lastY;
     protected boolean isPressed = false;
 
+    private boolean isDummy = false;
+
 
     /* Event Handlers */
     @FXML
@@ -102,8 +104,11 @@ public class ChannelStripController {
     public String getRootId(){ return CHANNEL_STRIP_ROOT.getId(); }
     public void setRootId(String rootId){ CHANNEL_STRIP_ROOT.setId(rootId); }
 
+    public boolean isDummy() { return isDummy; }
+
     /* Utility Methods */
-    public void setup(ApplicationState applicationState) throws IOException {
+    public void setup(ApplicationState applicationState, boolean isDummy) throws IOException {
+        this.isDummy = isDummy;
         this.scribbleStrip = (Label) CHANNEL_STRIP_ROOT.lookup(".scribble-strip");
         initializeScribbleStrip();
         initializeFaderCap();
@@ -133,7 +138,7 @@ public class ChannelStripController {
     }
     protected void initializeMuteButton(boolean addMargin) throws IOException {
         FXMLLoader muteButtonloader = new FXMLLoader(HytalkClientApplication.class.getResource("widget/button/Button.fxml"));
-        StackPane muteButton = (StackPane) muteButtonloader.load();
+        StackPane muteButton = muteButtonloader.load();
         ButtonController muteButtonController = muteButtonloader.getController();
         muteButtonController.setButtonType(ButtonType.MUTE);
         if (addMargin) {
@@ -149,6 +154,7 @@ public class ChannelStripController {
     }
 
     protected void setGain() {
+        if (isDummy) return;
         CHANNEL_STRIP_ROOT.fireEvent(new GainChangeEvent(playerId, calculateGainPercentage()));
     }
 
@@ -157,6 +163,9 @@ public class ChannelStripController {
     }
 
     public void updateMeter(float level) {
+        if (isDummy){
+            VUMeter.setEndY(Math.round((255 - (Math.random() * 255))) + 5);
+        }
         VUMeter.setEndY(Math.round((255 - (level * 255))) + 5);
     }
 }

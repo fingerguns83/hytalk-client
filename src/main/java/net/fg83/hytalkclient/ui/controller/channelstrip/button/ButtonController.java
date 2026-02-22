@@ -47,16 +47,16 @@ public class ButtonController {
     public void setButtonColor(){
         MIXER_BUTTON_LABEL.setStyle("-fx-text-fill: black;");
         switch (buttonType){
-            case MUTE -> { buttonColor = "red"; }
-            case NOISE_REDUCTION -> { buttonColor = "gold"; }
-            case LIMITER -> { buttonColor = "orange"; }
+            case MUTE -> buttonColor = "red";
+            case NOISE_REDUCTION -> buttonColor = "gold";
+            case LIMITER -> buttonColor = "orange";
         }
     }
     public void setButtonText(){
         switch (buttonType){
-            case MUTE -> { MIXER_BUTTON_LABEL.setText("M"); }
-            case NOISE_REDUCTION -> { MIXER_BUTTON_LABEL.setText("NR"); }
-            case LIMITER -> { MIXER_BUTTON_LABEL.setText("\uD802\uDCEB"); }
+            case MUTE -> MIXER_BUTTON_LABEL.setText("M");
+            case NOISE_REDUCTION -> MIXER_BUTTON_LABEL.setText("NR");
+            case LIMITER -> MIXER_BUTTON_LABEL.setText("\uD802\uDCEB");
         }
     }
 
@@ -98,9 +98,12 @@ public class ButtonController {
                     MIXER_BUTTON_ROOT.fireEvent(new ChannelMuteEvent(null, false, true, isEngaged));
                 }
                 else {
+                    if (parentController.isDummy()) return;
                     MIXER_BUTTON_ROOT.fireEvent(new ChannelMuteEvent(parentController.getPlayerId(), false, false, isEngaged));
                 }
             }
+            case NOISE_REDUCTION -> {}
+            case LIMITER -> {}
             default -> {}
         }
     }

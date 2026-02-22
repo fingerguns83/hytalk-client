@@ -67,6 +67,7 @@ public class MixerController {
 
         // Register through parent, but handle locally
         applicationState.getPlayerManager().addPlayerChangeListener(this::handlePlayerChange);
+        addDummyPlayers(10);
     }
 
     private void initializeFaders(ApplicationState applicationState) throws IOException {
@@ -86,7 +87,7 @@ public class MixerController {
 
     private void handlePlayerChange(PlayerChangeEvent event) {
         if (event instanceof PlayerChangeEvent.PlayerAddedEvent addedEvent) {
-            handlePlayerAdded(addedEvent);
+            handlePlayerAdded(addedEvent, false);
         }
         else if (event instanceof PlayerChangeEvent.PlayerRemovedEvent removedEvent) {
             handlePlayerRemoved(removedEvent);
@@ -96,12 +97,12 @@ public class MixerController {
         }
     }
 
-    private void handlePlayerAdded(PlayerChangeEvent.PlayerAddedEvent event) {
+    private void handlePlayerAdded(PlayerChangeEvent.PlayerAddedEvent event, boolean isDummy) {
         VoiceChatPlayer player = event.getPlayer();
         Pane fader = null;
 
         try {
-            fader = createPlayerChannelStrip(player.getPlayerId(), player.getPlayerName());
+            fader = createPlayerChannelStrip(player.getPlayerId(), player.getPlayerName(), isDummy);
         }
         catch (IOException e) {
             System.err.println("Failed to create fader for player: " + player.getPlayerName() + "[" + player.getPlayerId() + "]" + e.getMessage());
@@ -130,15 +131,15 @@ public class MixerController {
     }
 
     // === Channel Strip Creation ===
-    private Pane createPlayerChannelStrip(UUID playerId, String playerName) throws IOException {
+    private Pane createPlayerChannelStrip(UUID playerId, String playerName, boolean isDummy) throws IOException {
         FXMLLoader loader = new FXMLLoader(getView("widget/channelstrip/PlayerChannelStrip.fxml"));
-        Pane channelRoot = (Pane) loader.load();
+        Pane channelRoot = loader.load();
 
-        ChannelStripController controller = (ChannelStripController) loader.getController();
+        ChannelStripController controller = loader.getController();
         controller.setPlayerId(playerId);
         controller.setPlayerName(playerName);
         controller.setRootId("CHANNEL-" + playerId);
-        controller.setup(null);
+        controller.setup(null, isDummy);
 
         MIXER_ROOT.fireEvent(new RegisterChannelControllerEvent(playerId, controller, false, false));
 
@@ -151,7 +152,7 @@ public class MixerController {
         FXMLLoader loader = new FXMLLoader(getView("widget/channelstrip/InputChannelStrip.fxml"));
         Parent channelRoot = loader.load();
 
-        inputController = (InputChannelStripController) loader.getController();
+        inputController = loader.getController();
         inputController.setup(applicationState);
 
         INPUT_CHANNEL = (Pane) channelRoot;
@@ -163,7 +164,7 @@ public class MixerController {
         FXMLLoader loader = new FXMLLoader(getView("widget/channelstrip/OutputChannelStrip.fxml"));
         Parent channelRoot = loader.load();
 
-        outputController = (OutputChannelStripController) loader.getController();
+        outputController = loader.getController();
         outputController.setup(applicationState);
 
         OUTPUT_CHANNEL = (Pane) channelRoot;
@@ -199,7 +200,7 @@ public class MixerController {
             UUID dummyId = UUID.randomUUID();
             String dummyName = faker.name().username();
 
-            handlePlayerAdded(new PlayerChangeEvent.PlayerAddedEvent(new VoiceChatPlayer(dummyName, dummyId)));
+            handlePlayerAdded(new PlayerChangeEvent.PlayerAddedEvent(new VoiceChatPlayer(dummyName, dummyId)), true);
         }
         refreshPlayerChannelOrder();
     }
@@ -222,8 +223,7 @@ public class MixerController {
 
         // Mark the last channel for CSS styling
         if (!PLAYER_CHANNEL_HOLDER.getChildren().isEmpty()) {
-            javafx.scene.Node lastChild = PLAYER_CHANNEL_HOLDER.getChildren().get(
-                    PLAYER_CHANNEL_HOLDER.getChildren().size() - 1
+            javafx.scene.Node lastChild = PLAYER_CHANNEL_HOLDER.getChildren().getLast(
             );
             lastChild.getStyleClass().add("last-player-channel");
         }
