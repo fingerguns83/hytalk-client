@@ -14,6 +14,7 @@ module net.fg83.hytalkclient {
 
     exports net.fg83.hytalkclient;
     exports net.fg83.hytalkclient.audio;
+    exports net.fg83.hytalkclient.message;
     exports net.fg83.hytalkclient.model;
     exports net.fg83.hytalkclient.service;
     exports net.fg83.hytalkclient.service.event;
