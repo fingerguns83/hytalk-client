@@ -13,59 +13,87 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * MixerManager coordinates UI updates for the mixer.
- *
- * Responsibilities:
- * - Link audio streams to channel strip controllers for metering
- * - Update VU meters at 60fps
- * - Pure UI coordination (no audio processing)
+ * Manages audio mixer UI controllers and updates their audio level meters.
+ * Coordinates between audio streams and their corresponding UI channel strip controllers.
  */
 public class MixerManager {
 
+    // Audio stream manager that provides access to input, output, and player audio streams
     private final AudioStreamManager audioStreamManager;
 
-    // UI controllers
+    // Controller for the input channel strip UI
     private InputChannelStripController inputController;
+    // Controller for the output channel strip UI
     private OutputChannelStripController outputController;
+    // Map of player IDs to their corresponding channel strip controllers
     private final Map<UUID, ChannelStripController> playerControllers = new HashMap<>();
 
-    // Meter update timer
+    // Timer that periodically updates all audio level meters
     private AnimationTimer meterTimer;
+    // Flag indicating whether meter updates are currently running
     private boolean running = false;
 
+    /**
+     * Constructs a MixerManager with the specified audio stream manager.
+     *
+     * @param audioStreamManager The audio stream manager to retrieve stream data from
+     */
     public MixerManager(AudioStreamManager audioStreamManager) {
         this.audioStreamManager = audioStreamManager;
     }
 
-    // === UI Controller Registration ===
 
+    /**
+     * Sets the controller for the input channel strip.
+     *
+     * @param controller The input channel strip controller
+     */
     public void setInputController(InputChannelStripController controller) {
         this.inputController = controller;
     }
 
+    /**
+     * Sets the controller for the output channel strip.
+     *
+     * @param controller The output channel strip controller
+     */
     public void setOutputController(OutputChannelStripController controller) {
         this.outputController = controller;
     }
 
+    /**
+     * Adds a player's channel strip controller to the manager.
+     *
+     * @param playerId   The unique identifier of the player
+     * @param controller The channel strip controller for this player
+     */
     public void addPlayerController(UUID playerId, ChannelStripController controller) {
         playerControllers.put(playerId, controller);
     }
 
+    /**
+     * Removes a player's channel strip controller from the manager.
+     *
+     * @param playerId The unique identifier of the player to remove
+     */
     public void removePlayerController(UUID playerId) {
         playerControllers.remove(playerId);
     }
 
-    // === Meter Updates ===
 
     /**
-     * Start the meter update timer (60fps)
+     * Starts periodic meter updates for all audio channels.
+     * Uses JavaFX AnimationTimer to update meters on each frame.
+     * Does nothing if meter updates are already running.
      */
     public void startMeterUpdates() {
+        // Prevent starting multiple timers
         if (running) {
             return;
         }
 
         running = true;
+        // Create an animation timer that calls updateAllMeters on each frame
         meterTimer = new AnimationTimer() {
             @Override
             public void handle(long now) {
@@ -78,7 +106,8 @@ public class MixerManager {
     }
 
     /**
-     * Stop the meter update timer
+     * Stops periodic meter updates for all audio channels.
+     * Cleans up the animation timer if it exists.
      */
     public void stopMeterUpdates() {
         running = false;
@@ -91,17 +120,18 @@ public class MixerManager {
     }
 
     /**
-     * Update all VU meters from their respective audio streams
+     * Updates the audio level meters for all channels (input, players, output).
+     * Retrieves current audio levels from streams and updates corresponding UI controllers.
      */
     private void updateAllMeters() {
-        // Update input meter
+        // Update input channel meter
         InputAudioStream inputStream = audioStreamManager.getInputStream();
         if (inputController != null && inputStream != null && inputStream.isRunning()) {
             float level = inputStream.getCurrentLevel();
             inputController.updateMeter(level);
         }
 
-        // Update player meters
+        // Update all player channel meters
         playerControllers.forEach((playerId, controller) -> {
             PlayerAudioStream stream = audioStreamManager.getPlayerStream(playerId);
             if (stream != null && stream.isPlaying()) {
@@ -110,7 +140,7 @@ public class MixerManager {
             }
         });
 
-        // Update output meter
+        // Update output channel meter
         OutputAudioStream outputStream = audioStreamManager.getOutputStream();
         if (outputController != null && outputStream != null && outputStream.isRunning()) {
             float level = outputStream.getCurrentLevel();
@@ -119,6 +149,10 @@ public class MixerManager {
     }
 
 
+    /**
+     * Shuts down the mixer manager, stopping all meter updates and clearing all controllers.
+     * Should be called when the mixer is no longer needed.
+     */
     public void shutdown() {
         stopMeterUpdates();
         playerControllers.clear();
