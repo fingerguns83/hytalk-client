@@ -30,10 +30,11 @@ pipeline {
                         sh 'mvn clean package jpackage:jpackage@mac'
 
                         withCredentials([
-                            file(credentialsId: 'Apple-Dev-ID-Cert-2026', variable: 'MAC_CERT'),
+                            (credentialsId: 'Apple-Dev-ID-Cert-2026', variable: 'MAC_CERT'),
                             string(credentialsId: 'mac-cert-pass', variable: 'MAC_CERT_PASS')
                         ]) {
                             sh '''
+                            security delete-keychain build.keychain || true
                             security create-keychain -p buildpass build.keychain
                             security default-keychain -s build.keychain
                             security unlock-keychain -p buildpass build.keychain
