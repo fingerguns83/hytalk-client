@@ -34,12 +34,25 @@ pipeline {
                             string(credentialsId: 'mac-cert-pass', variable: 'MAC_CERT_PASS')
                         ]) {
                             sh '''
-                            security delete-keychain build.keychain || true
-                            security create-keychain -p buildpass build.keychain
-                            security default-keychain -s build.keychain
-                            security unlock-keychain -p buildpass build.keychain
+                            KEYCHAIN=build.keychain
+                            KEYCHAIN_PASSWORD=buildpass
 
-                            security import $MAC_CERT -k build.keychain -P $MAC_CERT_PASS -T /usr/bin/codesign
+                            security delete-keychain $KEYCHAIN || true
+
+                            security create-keychain -p $KEYCHAIN_PASSWORD $KEYCHAIN
+                            security set-keychain-settings -lut 21600 $KEYCHAIN
+                            security unlock-keychain -p $KEYCHAIN_PASSWORD $KEYCHAIN
+
+                            security list-keychains -d user -s $KEYCHAIN
+                            security default-keychain -s $KEYCHAIN
+
+                            security import "$CERT" -k $KEYCHAIN -P "$P12_PASSWORD" \
+                              -T /usr/bin/codesign -T /usr/bin/security
+
+                            security set-key-partition-list -S apple-tool:,apple: \
+                              -s -k $KEYCHAIN_PASSWORD $KEYCHAIN
+
+                            security find-identity -v -p codesigning $KEYCHAIN
 
                             APP_PATH=$(find target -name "*.app" -type d | head -n 1)
 
