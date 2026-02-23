@@ -31,11 +31,6 @@ pipeline {
                         // Build first
                         sh 'mvn clean package jpackage:jpackage@mac'
 
-                        // Unlock the existing keychain that already has your .p12 certificate
-                        xcodeUnlockKeychain(
-                            keychainId: 'jenkins-keychain'
-                        )
-
                         // Run Xcode build using the unlocked keychain
                         xcodeBuild(
                             xcodeProjectPath: 'Hytalk.xcodeproj',
