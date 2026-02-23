@@ -31,72 +31,39 @@ pipeline {
                         // Build first
                         sh 'mvn clean package jpackage:jpackage@mac'
 
-                        // Handle macOS keychain and codesigning
-                        withCredentials([
-                            file(credentialsId: 'Apple-Dev-ID-Cert-2026', variable: 'CERT'),
-                            string(credentialsId: 'mac-cert-pass', variable: 'P12_PASSWORD')
-                        ]) {
-                            script {
-                                def keychainName = "build-${env.BUILD_NUMBER}.keychain"
-                                def keychainPassword = "buildpass"
+                        // Unlock the existing keychain that already has your .p12 certificate
+                        xcodeUnlockKeychain(
+                            keychainPath: '/Users/jenkins/Library/Keychains/jenkins.keychain-db', // path to your installed keychain
+                            keychainPassword: 'jenkins' // password for that keychain
+                        )
 
-                                // Make Groovy vars available to shell
-                                env.KEYCHAIN_NAME = keychainName
-                                env.KEYCHAIN_PASSWORD = keychainPassword
+                        // Run Xcode build using the unlocked keychain
+                        xcodeBuild(
+                            xcodeProjectPath: 'Hytalk.xcodeproj',
+                            xcodeSchema: 'Release',
+                            configuration: 'Release',
+                            unlockKeychain: true,
+                            keychainPath: '/Users/jenkins/Library/Keychains/jenkins.keychain-db',
+                            keychainPassword: 'jenkins'
+                        )
 
-                                sh '''
-                                    set -e
+                        // Locate the built app and DMG
+                        sh '''
+                            APP_PATH=$(find target -name "*.app" -type d | head -n 1)
+                            DMG_PATH=$(find target -name "*.dmg" | head -n 1)
 
-                                    echo "Using keychain: $KEYCHAIN_NAME"
-                                    echo "CERT exists: $CERT"
-                                    echo "P12_PASSWORD length: ${#P12_PASSWORD}"
+                            echo "Signing and verifying app at $APP_PATH"
+                            codesign --deep --force --verbose -s "Developer ID Application: Steven Backenstoes (6J8PZ8D7V4)" "$APP_PATH"
+                            codesign --verify --deep --strict --verbose=2 "$APP_PATH"
 
-                                    # Delete old keychain
-                                    security delete-keychain "$KEYCHAIN_NAME" || true
+                            echo "Signing and verifying DMG at $DMG_PATH"
+                            codesign --deep --force --verbose -s "Developer ID Application: Steven Backenstoes (6J8PZ8D7V4)" "$DMG_PATH"
+                            codesign --verify --verbose=2 "$DMG_PATH"
 
-                                    # Create and unlock
-                                    security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME"
-                                    security set-keychain-settings -lut 21600 "$KEYCHAIN_NAME"
-                                    security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME"
-
-                                    # Add to search list and set default
-                                    security list-keychains -d user -s "$KEYCHAIN_NAME"
-                                    security default-keychain -s "$KEYCHAIN_NAME"
-
-                                    # Import certificate
-                                    security import "$CERT" -k "$KEYCHAIN_NAME" -P "$P12_PASSWORD" \
-                                      -T /usr/bin/codesign -T /usr/bin/security
-
-                                    # Set key partition list
-                                    security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME"
-
-                                    # Verify identities
-                                    security find-identity -v -p codesigning "$KEYCHAIN_NAME"
-
-                                    # Sign app
-                                    APP_PATH=$(find target -name "*.app" -type d | head -n 1)
-                                    echo "Signing app at $APP_PATH"
-
-                                    CODESIGN_IDENTITY=$(security find-identity -v -p codesigning "$KEYCHAIN_NAME" \
-                                        | grep "Developer ID Application" \
-                                        | awk '{print substr($0, index($0, "Developer ID Application"))}')
-                                    echo "Signing with identity: $CODESIGN_IDENTITY"
-
-                                    codesign --deep --force --verbose -s "$CODESIGN_IDENTITY" "$APP_PATH"
-                                    codesign --verify --deep --strict --verbose=2 "$APP_PATH"
-
-                                    # Sign DMG
-                                    DMG_PATH=$(find target -name "*.dmg" | head -n 1)
-                                    echo "Signing DMG at $DMG_PATH"
-                                    codesign --deep --force --verbose -s "$CODESIGN_IDENTITY" "$DMG_PATH"
-                                    codesign --verify --verbose=2 "$DMG_PATH"
-
-                                    # Notarize and staple
-                                    xcrun notarytool submit "$DMG_PATH" --keychain-profile "FG_SIGNING_PROFILE" --wait
-                                    xcrun stapler staple "$DMG_PATH"
-                                '''
-                            }
-                        }
+                            # Notarize and staple
+                            xcrun notarytool submit "$DMG_PATH" --keychain-profile "FG_SIGNING_PROFILE" --wait
+                            xcrun stapler staple "$DMG_PATH"
+                        '''
 
                         // Collect artifacts
                         sh 'mkdir -p artifacts/mac-arm64'
@@ -108,7 +75,7 @@ pipeline {
                             archiveArtifacts artifacts: 'artifacts/mac-arm64/**/*', fingerprint: true
                         }
                     }
-                }
+
 
 
                 stage('Win AMD') {
