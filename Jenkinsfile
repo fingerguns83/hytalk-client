@@ -37,44 +37,47 @@ pipeline {
                             string(credentialsId: 'mac-cert-pass', variable: 'P12_PASSWORD')
                         ]) {
                             script {
-                                // Dynamic keychain per build to avoid collisions
                                 def keychainName = "build-${env.BUILD_NUMBER}.keychain"
                                 def keychainPassword = "buildpass"
+
+                                // Make Groovy vars available to shell
+                                env.KEYCHAIN_NAME = keychainName
+                                env.KEYCHAIN_PASSWORD = keychainPassword
 
                                 sh '''
                                     set -e
 
-                                    echo "Using keychain: $keychainName"
+                                    echo "Using keychain: $KEYCHAIN_NAME"
                                     echo "CERT exists: $CERT"
                                     echo "P12_PASSWORD length: ${#P12_PASSWORD}"
 
-                                    # Delete old keychain if it exists
-                                    security delete-keychain "$keychainName" || true
+                                    # Delete old keychain
+                                    security delete-keychain "$KEYCHAIN_NAME" || true
 
-                                    # Create new keychain and unlock
-                                    security create-keychain -p "$keychainPassword" "$keychainName"
-                                    security set-keychain-settings -lut 21600 "$keychainName"
-                                    security unlock-keychain -p "$keychainPassword" "$keychainName"
+                                    # Create and unlock
+                                    security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME"
+                                    security set-keychain-settings -lut 21600 "$KEYCHAIN_NAME"
+                                    security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME"
 
                                     # Add to search list and set default
-                                    security list-keychains -d user -s "$keychainName"
-                                    security default-keychain -s "$keychainName"
+                                    security list-keychains -d user -s "$KEYCHAIN_NAME"
+                                    security default-keychain -s "$KEYCHAIN_NAME"
 
                                     # Import certificate
-                                    security import "$CERT" -k "$keychainName" -P "$P12_PASSWORD" \
-                                        -T /usr/bin/codesign -T /usr/bin/security
+                                    security import "$CERT" -k "$KEYCHAIN_NAME" -P "$P12_PASSWORD" \
+                                      -T /usr/bin/codesign -T /usr/bin/security
 
-                                    # Set key partition list for non-interactive codesigning
-                                    security set-key-partition-list -S apple-tool:,apple: -s -k "$keychainPassword" "$keychainName"
+                                    # Set key partition list
+                                    security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME"
 
                                     # Verify identities
-                                    security find-identity -v -p codesigning "$keychainName"
+                                    security find-identity -v -p codesigning "$KEYCHAIN_NAME"
 
-                                    # Find built .app
+                                    # Sign app
                                     APP_PATH=$(find target -name "*.app" -type d | head -n 1)
                                     echo "Signing app at $APP_PATH"
 
-                                    CODESIGN_IDENTITY=$(security find-identity -v -p codesigning "$keychainName" \
+                                    CODESIGN_IDENTITY=$(security find-identity -v -p codesigning "$KEYCHAIN_NAME" \
                                         | grep "Developer ID Application" \
                                         | awk '{print substr($0, index($0, "Developer ID Application"))}')
                                     echo "Signing with identity: $CODESIGN_IDENTITY"
@@ -82,10 +85,9 @@ pipeline {
                                     codesign --deep --force --verbose -s "$CODESIGN_IDENTITY" "$APP_PATH"
                                     codesign --verify --deep --strict --verbose=2 "$APP_PATH"
 
-                                    # Find built .dmg
+                                    # Sign DMG
                                     DMG_PATH=$(find target -name "*.dmg" | head -n 1)
                                     echo "Signing DMG at $DMG_PATH"
-
                                     codesign --deep --force --verbose -s "$CODESIGN_IDENTITY" "$DMG_PATH"
                                     codesign --verify --verbose=2 "$DMG_PATH"
 
