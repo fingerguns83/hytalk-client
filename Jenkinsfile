@@ -33,8 +33,7 @@ pipeline {
 
                         // Unlock the existing keychain that already has your .p12 certificate
                         xcodeUnlockKeychain(
-                            keychainPath: '/Users/jenkins/Library/Keychains/jenkins.keychain-db', // path to your installed keychain
-                            keychainPwd: 'jenkins' // password for that keychain
+                            keychainCredentialId: 'jenkins-keychain'
                         )
 
                         // Run Xcode build using the unlocked keychain
@@ -43,8 +42,7 @@ pipeline {
                             xcodeSchema: 'Release',
                             configuration: 'Release',
                             unlockKeychain: true,
-                            keychainPath: '/Users/jenkins/Library/Keychains/jenkins.keychain-db',
-                            keychainPwd: 'jenkins'
+                            keychainCredentialId: 'jenkins-keychain'
                         )
 
                         // Locate the built app and DMG
