@@ -1,3 +1,6 @@
+// Copyright (C) 2026 fingerguns83
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 package net.fg83.hytalkclient.service.event;
 
 import net.fg83.hytalkclient.model.VoiceChatPlayer;

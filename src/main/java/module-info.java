@@ -1,7 +1,10 @@
+// Copyright (C) 2026 fingerguns83
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 module net.fg83.hytalkclient {
     requires javafx.controls;
     requires javafx.fxml;
-    requires java.desktop; // For javax.sound.sampled
+    requires java.desktop;
     requires com.google.gson;
     requires org.java_websocket;
     requires java.prefs;
