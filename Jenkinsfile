@@ -76,7 +76,7 @@ pipeline {
                         }
                     }
 
-
+                }
 
                 stage('Win AMD') {
                     agent { label 'windows && amd' }
