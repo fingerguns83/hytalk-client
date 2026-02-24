@@ -140,6 +140,7 @@
             <plugin>
                 <groupId>org.panteleyev</groupId>
                 <artifactId>jpackage-maven-plugin</artifactId>
+                <version>1.7.3</version>
 
                 <configuration>
                     <name>Hytalk</name>
@@ -165,7 +166,7 @@
                             <icon>${project.basedir}/icons/icon.icns</icon>
                             <resourceDir>${project.basedir}/src/main/resources</resourceDir>
                             <macSign>true</macSign>
-                            <macSigningKeychain>/Users/jenkins/Library/Keychains/jenkins.keychain-db</macSigningKeychain>
+                            <macSigningKeychain>/Users/jenkins/Library/Keychains/login.keychain-db</macSigningKeychain>
                             <macSigningKeyUserName>Developer ID Application: Steven Backenstoes (6J8PZ8D7V4)</macSigningKeyUserName>
                         </configuration>
                     </execution>
