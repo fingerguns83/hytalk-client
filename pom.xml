@@ -192,7 +192,7 @@
                     <execution>
                         <id>linux</id>
                         <configuration>
-                            <type>app-image</type>
+                            <type>APP_IMAGE</type>
                             <icon>${project.basedir}/icons/icon.png</icon>
                         </configuration>
                     </execution>
