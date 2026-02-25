@@ -28,6 +28,10 @@ pipeline {
 
                     steps {
                         sh 'mvn clean package jpackage:jpackage@mac'
+                        //sh 'security unlock-keychain -p "$KEYCHAIN_PASSWORD" ~/Library/Keychains/login.keychain-db'
+                        //sh 'security list-keychains -s ~/Library/Keychains/login.keychain-db'
+                        //sh 'security default-keychain -s ~/Library/Keychains/login.keychain-db'
+                        //sh 'security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" ~/Library/Keychains/login.keychain-db'
                         sh 'mkdir -p artifacts/mac-arm64'
                         sh 'cp -r target/* artifacts/mac-arm64/'
                     }
