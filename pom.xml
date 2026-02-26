@@ -163,6 +163,7 @@
                             <goal>jpackage</goal>
                         </goals>
                         <configuration>
+                            <type>pkg</type>
                             <icon>${project.basedir}/icons/icon.icns</icon>
                             <resourceDir>${project.basedir}/src/main/resources</resourceDir>
                             <macSign>true</macSign>
