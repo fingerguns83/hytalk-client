@@ -151,8 +151,10 @@
                             <goal>package</goal>
                         </goals>
                         <configuration>
+                            <name>Hytalk</name>
                             <mainClass>${appMainClass}</mainClass>
                             <bundleJre>true</bundleJre>
+                            <jrePath>${project.build.directory}/Hytalk</jrePath>
                             <generateInstaller>true</generateInstaller>
                             <licenseFile>${project.basedir}/LICENSE</licenseFile>
                             <platform>mac</platform>
@@ -165,6 +167,8 @@
                                 <backgroundImage>${project.basedir}/assets/images/background.png</backgroundImage>
                                 <generateDmg>true</generateDmg>
                                 <generatePkg>false</generatePkg>
+                                <relocateJar>false</relocateJar>
+                                <macStartup>ARM64</macStartup>
                                 <codesignApp>true</codesignApp>
                                 <notarizeApp>true</notarizeApp>
                                 <developerId>Developer ID Application: Steven Backenstoes (6J8PZ8D7V4)</developerId>
@@ -199,6 +203,7 @@
                         <configuration>
                             <mainClass>${appMainClass}</mainClass>
                             <bundleJre>true</bundleJre>
+                            <jrePath>${project.build.directory}/Hytalk</jrePath>
                             <generateInstaller>true</generateInstaller>
                             <platform>linux</platform>
                             <version>${project.version}</version>

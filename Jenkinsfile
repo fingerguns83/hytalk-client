@@ -27,7 +27,7 @@ pipeline {
                     agent { label 'mac && arm' }
 
                     steps {
-                        sh 'mvn clean package io.github.fvarrui:javapackager:package@package-mac-arm'
+                        sh 'mvn clean package javafx:jlink io.github.fvarrui:javapackager:package@package-mac-arm'
                         sh 'mkdir -p artifacts/mac-arm64'
                         sh 'cp -r target/* artifacts/mac-arm64/'
                     }
@@ -77,7 +77,7 @@ pipeline {
                 stage('Linux AMD') {
                     agent { label 'linux && amd' }
                     steps {
-                        sh 'mvn clean package io.github.fvarrui:javapackager:package@package-linux'
+                        sh 'mvn clean package javafx:jlink io.github.fvarrui:javapackager:package@package-linux'
                         sh 'mkdir -p artifacts/linux-amd64'
                         sh 'cp -r target/* artifacts/linux-amd64/'
                     }
