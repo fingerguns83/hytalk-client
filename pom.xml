@@ -163,7 +163,6 @@
                             <goal>jpackage</goal>
                         </goals>
                         <configuration>
-                            <appImage />
                             <icon>${project.basedir}/icons/icon.icns</icon>
                             <resourceDir>${project.basedir}/src/main/resources</resourceDir>
                             <macSign>true</macSign>
