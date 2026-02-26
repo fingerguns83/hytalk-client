@@ -59,20 +59,20 @@ pipeline {
                     }
                 }
 
-                stage('Win ARM') {
-                    agent { label 'windows && arm' }
-                    steps {
-                        bat 'mvn -version'
-                        bat 'mvn clean package jpackage:jpackage@win'
-                        bat 'if not exist artifacts\\windows-arm64 mkdir artifacts\\windows-arm64'
-                        bat 'xcopy /E /I /Y target artifacts\\windows-arm64'
-                    }
-                    post {
-                        success {
-                            archiveArtifacts artifacts: 'artifacts/windows-arm64/**/*', fingerprint: true
-                        }
-                    }
-                }
+                //stage('Win ARM') {
+                //    agent { label 'windows && arm' }
+                //    steps {
+                //        bat 'mvn -version'
+                //        bat 'mvn clean package jpackage:jpackage@win'
+                //        bat 'if not exist artifacts\\windows-arm64 mkdir artifacts\\windows-arm64'
+                //        bat 'xcopy /E /I /Y target artifacts\\windows-arm64'
+                //    }
+                //    post {
+                //        success {
+                //            archiveArtifacts artifacts: 'artifacts/windows-arm64/**/*', fingerprint: true
+                //        }
+                //    }
+                //}
 
                 stage('Linux AMD') {
                     agent { label 'linux && amd' }
