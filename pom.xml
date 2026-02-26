@@ -163,11 +163,12 @@
                             <goal>jpackage</goal>
                         </goals>
                         <configuration>
+                            <appImage />
                             <icon>${project.basedir}/icons/icon.icns</icon>
                             <resourceDir>${project.basedir}/src/main/resources</resourceDir>
-                            <macSign>true</macSign>
+                            <!--<macSign>true</macSign>
                             <macSigningKeychain>/Users/jenkins/Library/Keychains/login.keychain-db</macSigningKeychain>
-                            <macSigningKeyUserName>Steven Backenstoes (6J8PZ8D7V4)</macSigningKeyUserName>
+                            <macSigningKeyUserName>Developer ID Application: Steven Backenstoes (6J8PZ8D7V4)</macSigningKeyUserName>-->
                         </configuration>
                     </execution>
                     <execution>
