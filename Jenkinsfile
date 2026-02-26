@@ -27,11 +27,7 @@ pipeline {
                     agent { label 'mac && arm' }
 
                     steps {
-                        sh 'mvn clean package jpackage:jpackage@mac'
-                        //sh 'security unlock-keychain -p "$KEYCHAIN_PASSWORD" ~/Library/Keychains/login.keychain-db'
-                        //sh 'security list-keychains -s ~/Library/Keychains/login.keychain-db'
-                        //sh 'security default-keychain -s ~/Library/Keychains/login.keychain-db'
-                        //sh 'security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" ~/Library/Keychains/login.keychain-db'
+                        sh 'mvn clean package io.github.fvarrui:javapackager:package@package-mac-arm'
                         sh 'mkdir -p artifacts/mac-arm64'
                         sh 'cp -r target/* artifacts/mac-arm64/'
                     }
@@ -81,7 +77,7 @@ pipeline {
                 stage('Linux AMD') {
                     agent { label 'linux && amd' }
                     steps {
-                        sh 'mvn clean package jpackage:jpackage@linux'
+                        sh 'mvn clean package io.github.fvarrui:javapackager:package@package-linux'
                         sh 'mkdir -p artifacts/linux-amd64'
                         sh 'cp -r target/* artifacts/linux-amd64/'
                     }
@@ -95,7 +91,7 @@ pipeline {
                 stage('Linux ARM') {
                     agent { label 'linux && arm' }
                     steps {
-                        sh 'mvn clean package jpackage:jpackage@linux'
+                        sh 'mvn clean package io.github.fvarrui:javapackager:package@package-linux'
                         sh 'mkdir -p artifacts/linux-arm64'
                         sh 'cp -r target/* artifacts/linux-arm64/'
                     }

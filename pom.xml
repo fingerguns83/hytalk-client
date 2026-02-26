@@ -12,6 +12,9 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.organization.url>https://fg83.net</project.organization.url>
+        <project.organization.name>FG Labs</project.organization.name>
+
         <junit.version>5.12.1</junit.version>
         <appModule>net.fg83.hytalkclient</appModule>
         <appMainClass>net.fg83.hytalkclient.HytalkClientApplication</appMainClass>
@@ -138,6 +141,79 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>io.github.fvarrui</groupId>
+                <artifactId>javapackager</artifactId>
+                <version>1.7.6</version>
+                <executions>
+                    <execution>
+                        <id>package-mac-arm</id>
+                        <goals>
+                            <goal>package</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>${appMainClass}</mainClass>
+                            <bundleJre>true</bundleJre>
+                            <generateInstaller>true</generateInstaller>
+                            <licenseFile>${project.basedir}/LICENSE</licenseFile>
+                            <platform>mac</platform>
+                            <version>${project.version}</version>
+                            <description>Hytale proximity voice-chat client.</description>
+                            <outputDirectory>${project.build.directory}/dist</outputDirectory>
+                            <macConfig>
+                                <appId>${appModule}</appId>
+                                <icnsFile>${project.basedir}/assets/icons/icon.icns</icnsFile>
+                                <backgroundImage>${project.basedir}/assets/images/background.png</backgroundImage>
+                                <generateDmg>true</generateDmg>
+                                <generatePkg>false</generatePkg>
+                                <codesignApp>true</codesignApp>
+                                <notarizeApp>true</notarizeApp>
+                                <developerId>Developer ID Application: Steven Backenstoes (6J8PZ8D7V4)</developerId>
+                                <keyChainProfile>FG_SIGNING_PROFILE</keyChainProfile>
+                            </macConfig>
+                        </configuration>
+                    </execution>
+                    <!--<execution>
+                        <id>package-win</id>
+                        <goals>
+                            <goal>package</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>${appMainClass}</mainClass>
+                            <bundleJre>true</bundleJre>
+                            <generateInstaller>true</generateInstaller>
+                            <platform>windows</platform>
+                            <version>${project.version}</version>
+                            <description>Hytale proximity voice-chat client.</description>
+                            <outputDirectory>${project.build.directory}/dist</outputDirectory>
+                            <winConfig>
+                                <icoFile>${project.basedir}/icons/icon.ico</icoFile>
+                            </winConfig>
+                        </configuration>
+                    </execution>-->
+
+                    <execution>
+                        <id>package-linux</id>
+                        <goals>
+                            <goal>package</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>${appMainClass}</mainClass>
+                            <bundleJre>true</bundleJre>
+                            <generateInstaller>true</generateInstaller>
+                            <platform>linux</platform>
+                            <version>${project.version}</version>
+                            <description>Hytale proximity voice-chat client.</description>
+                            <outputDirectory>${project.build.directory}/dist</outputDirectory>
+                            <linuxConfig>
+                                <icon>${project.basedir}/assets/icons/icon.png</icon>
+                                <generateAppImage>true</generateAppImage>
+                                <wrapJar>true</wrapJar>
+                            </linuxConfig>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.panteleyev</groupId>
                 <artifactId>jpackage-maven-plugin</artifactId>
                 <version>1.7.3</version>
@@ -146,7 +222,6 @@
                     <name>Hytalk</name>
                     <appVersion>${project.version}</appVersion>
                     <vendor>net.fg83</vendor>
-                    <!-- Entire JDK is used as runtime image -->
                     <runtimeImage>${java.home}</runtimeImage>
                     <module>${appModule}/${appMainClass}</module>
                     <modulePaths>
@@ -157,7 +232,7 @@
                 </configuration>
 
                 <executions>
-                    <execution>
+                    <!--<execution>
                         <id>mac</id>
                         <goals>
                             <goal>jpackage</goal>
@@ -166,18 +241,18 @@
                             <appImage />
                             <icon>${project.basedir}/icons/icon.icns</icon>
                             <resourceDir>${project.basedir}/src/main/resources</resourceDir>
-                            <!--<macSign>true</macSign>
+                            <macSign>true</macSign>
                             <macSigningKeychain>/Users/jenkins/Library/Keychains/login.keychain-db</macSigningKeychain>
-                            <macSigningKeyUserName>Developer ID Application: Steven Backenstoes (6J8PZ8D7V4)</macSigningKeyUserName>-->
+                            <macSigningKeyUserName>Developer ID Application: Steven Backenstoes (6J8PZ8D7V4)</macSigningKeyUserName>
                         </configuration>
-                    </execution>
+                    </execution>-->
                     <execution>
                         <id>win</id>
                         <goals>
                             <goal>jpackage</goal>
                         </goals>
                         <configuration>
-                            <icon>${project.basedir}/icons/icon.ico</icon>
+                            <icon>assets/icons/icon.ico</icon>
                             <name>Hytalk</name>
                             <module>net.fg83.hytalkclient/net.fg83.hytalkclient.HytalkClientApplication</module>
                             <vendor>FG Labs</vendor>
@@ -188,13 +263,6 @@
                             <winDirChooser>true</winDirChooser>
                             <winShortcut>true</winShortcut>
                             <winUpgradeUuid>2944658e-9ad8-407d-b9d8-92edf39cdea6</winUpgradeUuid>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>linux</id>
-                        <configuration>
-                            <type>APP_IMAGE</type>
-                            <icon>${project.basedir}/icons/icon.png</icon>
                         </configuration>
                     </execution>
                 </executions>
