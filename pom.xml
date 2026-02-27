@@ -147,9 +147,6 @@
                 <executions>
                     <execution>
                         <id>package-mac-arm</id>
-                        <goals>
-                            <goal>package</goal>
-                        </goals>
                         <configuration>
                             <name>Hytalk</name>
                             <mainClass>${appMainClass}</mainClass>
@@ -197,9 +194,6 @@
 
                     <execution>
                         <id>package-linux</id>
-                        <goals>
-                            <goal>package</goal>
-                        </goals>
                         <configuration>
                             <mainClass>${appMainClass}</mainClass>
                             <bundleJre>true</bundleJre>
