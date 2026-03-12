@@ -15,9 +15,6 @@ import java.util.List;
  */
 public class AudioIOManager {
 
-    // Reference to preference manager for persisting audio settings
-    private final PreferenceManager preferenceManager;
-
     // Currently selected audio input device (microphone)
     private AudioDevice selectedInputDevice;
     // Currently selected audio output device (speakers/headphones)
@@ -70,19 +67,16 @@ public class AudioIOManager {
 
     /**
      * Constructs an AudioIOManager and restores saved device preferences.
-     *
-     * @param preferenceManager Manager for loading and saving audio preferences
      */
-    public AudioIOManager(PreferenceManager preferenceManager) {
-        this.preferenceManager = preferenceManager;
+    public AudioIOManager() {
 
         // Restore previously selected devices from preferences
         this.selectedInputDevice = restoreSavedInputDevice();
         this.selectedOutputDevice = restoreSavedOutputDevice();
 
         // Restore saved gain values
-        this.inputGain = preferenceManager.getInputGain();
-        this.outputGain = preferenceManager.getOutputGain();
+        this.inputGain = PreferenceManager.getInputGain();
+        this.outputGain = PreferenceManager.getOutputGain();
 
         System.out.println("AudioIOManager initialized with saved preferences");
     }
@@ -316,7 +310,7 @@ public class AudioIOManager {
      * @return The restored or default input device
      */
     private AudioDevice restoreSavedInputDevice() {
-        String savedName = preferenceManager.getInputDevice();
+        String savedName = PreferenceManager.getInputDevice();
 
         if (savedName != null) {
             // Search for the saved device in available devices
@@ -339,7 +333,7 @@ public class AudioIOManager {
      * @return The restored or default output device
      */
     private AudioDevice restoreSavedOutputDevice() {
-        String savedName = preferenceManager.getOutputDevice();
+        String savedName = PreferenceManager.getOutputDevice();
 
         if (savedName != null) {
             // Search for the saved device in available devices
@@ -377,7 +371,7 @@ public class AudioIOManager {
     public void setSelectedInputDevice(AudioDevice device) {
         this.selectedInputDevice = device;
         if (device != null) {
-            preferenceManager.saveInputDevice(device.name());
+            PreferenceManager.saveInputDevice(device.name());
         }
     }
 
@@ -402,7 +396,7 @@ public class AudioIOManager {
     public void setSelectedOutputDevice(AudioDevice device) {
         this.selectedOutputDevice = device;
         if (device != null) {
-            preferenceManager.saveOutputDevice(device.name());
+            PreferenceManager.saveOutputDevice(device.name());
         }
     }
 
@@ -424,7 +418,7 @@ public class AudioIOManager {
     public void setInputGain(float gain) {
         // Clamp gain to valid range
         this.inputGain = Math.max(0.0f, Math.min(1.25f, gain));
-        preferenceManager.saveInputGain(this.inputGain);
+        PreferenceManager.saveInputGain(this.inputGain);
     }
 
     /**
@@ -445,6 +439,6 @@ public class AudioIOManager {
     public void setOutputGain(float gain) {
         // Clamp gain to valid range
         this.outputGain = Math.max(0.0f, Math.min(1.25f, gain));
-        preferenceManager.saveOutputGain(this.outputGain);
+        PreferenceManager.saveOutputGain(this.outputGain);
     }
 }

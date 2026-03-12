@@ -11,32 +11,23 @@ import java.util.prefs.Preferences;
  */
 public class PreferenceManager {
 
-    // Preference key for the input audio device name
     private static final String PREF_INPUT_DEVICE_NAME = "audio.input.device.name";
-    // Preference key for the output audio device name
     private static final String PREF_OUTPUT_DEVICE_NAME = "audio.output.device.name";
-    // Preference key for the input audio gain level
     private static final String PREF_INPUT_GAIN = "audio.input.gain";
-    // Preference key for the output audio gain level
     private static final String PREF_OUTPUT_GAIN = "audio.output.gain";
 
-    // Java Preferences instance for storing user preferences
-    private final Preferences prefs;
+    private static final String PREF_SERVER_ADDRESS = "server.address";
+    private static final String PREF_SERVER_PORT = "server.port";
 
-    /**
-     * Constructs a PreferenceManager and initializes the Preferences node.
-     * Uses the user node for this package to store preferences.
-     */
-    public PreferenceManager() {
-        this.prefs = Preferences.userNodeForPackage(PreferenceManager.class);
-    }
+    // Java Preferences instance for storing user preferences
+    private static final Preferences prefs = Preferences.userNodeForPackage(PreferenceManager.class);
 
     /**
      * Saves the input audio device name to preferences.
      *
      * @param deviceName The name of the input device to save, or null to skip saving
      */
-    public void saveInputDevice(String deviceName) {
+    public static void saveInputDevice(String deviceName) {
         // Only save if deviceName is not null
         if (deviceName != null) {
             prefs.put(PREF_INPUT_DEVICE_NAME, deviceName);
@@ -49,7 +40,7 @@ public class PreferenceManager {
      *
      * @return The saved input device name, or null if not set
      */
-    public String getInputDevice() {
+    public static String getInputDevice() {
         return prefs.get(PREF_INPUT_DEVICE_NAME, null);
     }
 
@@ -58,7 +49,7 @@ public class PreferenceManager {
      *
      * @param deviceName The name of the output device to save, or null to skip saving
      */
-    public void saveOutputDevice(String deviceName) {
+    public static void saveOutputDevice(String deviceName) {
         // Only save if deviceName is not null
         if (deviceName != null) {
             prefs.put(PREF_OUTPUT_DEVICE_NAME, deviceName);
@@ -71,7 +62,7 @@ public class PreferenceManager {
      *
      * @return The saved output device name, or null if not set
      */
-    public String getOutputDevice() {
+    public static String getOutputDevice() {
         return prefs.get(PREF_OUTPUT_DEVICE_NAME, null);
     }
 
@@ -80,7 +71,7 @@ public class PreferenceManager {
      *
      * @param gain The input gain level to save
      */
-    public void saveInputGain(float gain) {
+    public static void saveInputGain(float gain) {
         prefs.putFloat(PREF_INPUT_GAIN, gain);
     }
 
@@ -89,7 +80,7 @@ public class PreferenceManager {
      *
      * @return The saved input gain level, or 1.0f (default) if not set
      */
-    public float getInputGain() {
+    public static float getInputGain() {
         return prefs.getFloat(PREF_INPUT_GAIN, 1.0f);
     }
 
@@ -98,7 +89,7 @@ public class PreferenceManager {
      *
      * @param gain The output gain level to save
      */
-    public void saveOutputGain(float gain) {
+    public static void saveOutputGain(float gain) {
         prefs.putFloat(PREF_OUTPUT_GAIN, gain);
     }
 
@@ -107,15 +98,21 @@ public class PreferenceManager {
      *
      * @return The saved output gain level, or 1.0f (default) if not set
      */
-    public float getOutputGain() {
+    public static float getOutputGain() {
         return prefs.getFloat(PREF_OUTPUT_GAIN, 1.0f);
     }
+
+    public static void saveServerAddress(String serverAddress) { prefs.put(PREF_SERVER_ADDRESS, serverAddress); }
+    public static String getServerAddress() { return prefs.get(PREF_SERVER_ADDRESS, ""); }
+
+    public static void saveServerPort(int serverPort) { prefs.putInt(PREF_SERVER_PORT, serverPort); }
+    public static int getServerPort() { return prefs.getInt(PREF_SERVER_PORT, -1); }
 
     /**
      * Clears all saved preferences.
      * Removes all stored audio device and gain settings.
      */
-    public void clearAll() {
+    public static void clearAll() {
         try {
             // Clear all preferences from this node
             prefs.clear();

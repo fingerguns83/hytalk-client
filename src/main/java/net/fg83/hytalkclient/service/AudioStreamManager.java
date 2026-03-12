@@ -7,9 +7,11 @@ import net.fg83.hytalkclient.audio.InputAudioStream;
 import net.fg83.hytalkclient.audio.OutputAudioStream;
 import net.fg83.hytalkclient.audio.PlayerAudioStream;
 import net.fg83.hytalkclient.model.VoiceChatPlayer;
+
 import org.concentus.OpusException;
 
 import javax.sound.sampled.LineUnavailableException;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,11 +41,9 @@ public class AudioStreamManager {
 
     /**
      * Constructs a new AudioStreamManager with the given preference manager.
-     *
-     * @param preferenceManager The preference manager for audio device settings
      */
-    public AudioStreamManager(PreferenceManager preferenceManager) {
-        this.audioIOManager = new AudioIOManager(preferenceManager);
+    public AudioStreamManager() {
+        this.audioIOManager = new AudioIOManager();
     }
 
     /**
@@ -355,20 +355,33 @@ public class AudioStreamManager {
 
     /**
      * Updates audio attenuation for all players based on their positions.
+     * Removes stale player streams that are no longer in the voice chat.
      *
      * @param voiceChatPlayers Map of player UUIDs to VoiceChatPlayer objects
      */
-    public void updatePlayerAttenuation(Map<UUID, VoiceChatPlayer> voiceChatPlayers) {
+    public void updatePlayerStreams(Map<UUID, VoiceChatPlayer> voiceChatPlayers) {
+        updatePlayerAttenuation(voiceChatPlayers);
+        removeStalePlayerStreams(voiceChatPlayers);
+    }
+
+    private void updatePlayerAttenuation(Map<UUID, VoiceChatPlayer> voiceChatPlayers){
         for (Map.Entry<UUID, VoiceChatPlayer> entry : voiceChatPlayers.entrySet()) {
             UUID playerId = entry.getKey();
             VoiceChatPlayer player = entry.getValue();
             PlayerAudioStream stream = playerStreams.get(playerId);
-            // Calculate attenuation based on distance
-            float attenuation = player.calculateAttenuation(attenuationDistance);
+
             // Apply attenuation if stream exists
             if (stream != null) {
                 stream.setAttenuation(player.calculateAttenuation(attenuationDistance));
             }
         }
+    }
+
+    private void removeStalePlayerStreams(Map<UUID, VoiceChatPlayer> voiceChatPlayers) {
+        List<UUID> toRemove = this.playerStreams.keySet().stream()
+                .filter(uuid -> !voiceChatPlayers.containsKey(uuid))
+                .toList();
+
+        toRemove.forEach(this::removePlayer);
     }
 }

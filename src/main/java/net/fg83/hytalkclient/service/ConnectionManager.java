@@ -178,15 +178,13 @@ public class ConnectionManager {
                 // Update player positions and recalculate audio attenuation
                 JsonArray dataArray = data.getAsJsonArray();
                 applicationState.getPlayerManager().updateVoiceChatPlayers(Location.parsePlayerLocations(dataArray));
-                applicationState.getAudioStreamManager().updatePlayerAttenuation(applicationState.getPlayerManager().getVoiceChatPlayers());
+                applicationState.getAudioStreamManager().updatePlayerStreams(applicationState.getPlayerManager().getVoiceChatPlayers());
 
             }
             case GROUP_DATA -> {
                 // Group data handling (placeholder)
             }
-            case null -> {
-                System.err.println("Received null message type");
-            }
+            case null -> System.err.println("Received null message type");
             default -> System.err.println("Unknown message type: " + type);
         }
 

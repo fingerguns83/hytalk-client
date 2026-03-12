@@ -51,7 +51,7 @@ public class MixerEventHandler {
      */
     public static void handlePlayerGainChange(GainChangeEvent event, ApplicationState applicationState) {
         // Set the gain for the player's audio stream with a 1.25x multiplier
-        applicationState.getAudioStreamManager().getPlayerStream(event.getPlayerUUID()).setGain((float) (event.getGainPercentage() * 1.25F));
+        applicationState.getAudioStreamManager().setPlayerGain(event.getPlayerUUID(), (float) (event.getGainPercentage() * 1.25F));
     }
 
     /**
@@ -63,7 +63,7 @@ public class MixerEventHandler {
      */
     public static void handleInputGainChange(GainChangeEvent event, ApplicationState applicationState) {
         // Set the gain for the input stream with a 1.25x multiplier
-        applicationState.getAudioStreamManager().getInputStream().setGain((float) (event.getGainPercentage() * 1.25F));
+        applicationState.getAudioStreamManager().setInputGain((float) (event.getGainPercentage() * 1.25F));
     }
 
     /**
@@ -75,7 +75,7 @@ public class MixerEventHandler {
      */
     public static void handleOutputGainChange(GainChangeEvent event, ApplicationState applicationState) {
         // Set the gain for the output stream with a 1.25x multiplier
-        applicationState.getAudioStreamManager().getOutputStream().setGain((float) (event.getGainPercentage() * 1.25F));
+        applicationState.getAudioStreamManager().setOutputGain((float) (event.getGainPercentage() * 1.25F));
     }
 
     /**
@@ -130,15 +130,15 @@ public class MixerEventHandler {
     public static void handleChannelMuteEvent(ChannelMuteEvent event, ApplicationState applicationState) {
         // Handle input channel mute
         if (event.isInput()) {
-            applicationState.getAudioStreamManager().getInputStream().setMuted(event.isMuted());
+            applicationState.getAudioStreamManager().setInputMuted(event.isMuted());
             return;
         }
         // Handle output channel mute
         if (event.isOutput()) {
-            applicationState.getAudioStreamManager().getOutputStream().setMuted(event.isMuted());
+            applicationState.getAudioStreamManager().setOutputMuted(event.isMuted());
             return;
         }
         // Handle player channel mute
-        applicationState.getAudioStreamManager().getPlayerStream(event.getUuid()).setMuted(event.isMuted());
+        applicationState.getAudioStreamManager().setPlayerMuted(event.getUuid(), event.isMuted());
     }
 }

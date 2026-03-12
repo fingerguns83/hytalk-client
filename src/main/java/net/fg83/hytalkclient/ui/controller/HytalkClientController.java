@@ -122,9 +122,9 @@ public class HytalkClientController {
     private void setupConnectionView() throws IOException {
         System.out.println("Displaying connection view");
 
-        applicationState.getViewNavigationManager().navigateToView(
+        ConnectionController controller = applicationState.getViewNavigationManager().navigateToView(
                 getView("subviews/ConnectionView.fxml"),
-                null,
+                ConnectionController::setup,
                 WindowDimensions.CONNECTION_WIDTH,
                 WindowDimensions.CONNECTION_HEIGHT
         );
@@ -159,12 +159,10 @@ public class HytalkClientController {
         // Navigate to pairing view and initialize it with pairing code and expiration
         PairingController controller = applicationState.getViewNavigationManager().navigateToView(
                 getView("subviews/PairingView.fxml"),
-                pairingController -> {
-                    pairingController.setup(
-                            applicationState.getPairingManager().getPairingCode(),
-                            applicationState.getPairingManager().getPairingExpiration()
-                    );
-                },
+                pairingController -> pairingController.setup(
+                        applicationState.getPairingManager().getPairingCode(),
+                        applicationState.getPairingManager().getPairingExpiration()
+                ),
                 WindowDimensions.PAIRING_WIDTH,
                 WindowDimensions.PAIRING_HEIGHT
         );
@@ -182,9 +180,7 @@ public class HytalkClientController {
         // Navigate to mixer view and initialize it with application state
         MixerController controller = applicationState.getViewNavigationManager().navigateToView(
                 getView("subviews/MixerView.fxml"),
-                mixerController -> {
-                    mixerController.setup(applicationState);
-                },
+                mixerController -> mixerController.setup(applicationState),
                 WindowDimensions.MIXER_WIDTH,
                 WindowDimensions.MIXER_HEIGHT
         );

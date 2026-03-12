@@ -27,8 +27,7 @@ public class PlayerManager {
     /**
      * Constructs a new PlayerManager.
      */
-    public PlayerManager() {
-    }
+    public PlayerManager() {}
 
     /**
      * Sets the client player and marks them as the local user.
@@ -57,15 +56,6 @@ public class PlayerManager {
      */
     public void addPlayerChangeListener(Consumer<PlayerChangeEvent> listener) {
         changeListeners.add(listener);
-    }
-
-    /**
-     * Removes a previously registered player change listener.
-     *
-     * @param listener The listener to remove
-     */
-    public void removePlayerChangeListener(Consumer<PlayerChangeEvent> listener) {
-        changeListeners.remove(listener);
     }
 
     /**
@@ -114,8 +104,10 @@ public class PlayerManager {
             // Calculate the distance between this player and the client
             voiceChatPlayer.calculateDistance(clientPlayer.getPlayerLocation());
         });
+        removeStalePlayers(newVoiceChatPlayers);
+    }
 
-        // Find all players that are no longer in the new data (disconnected players)
+    private void removeStalePlayers(Map<UUID, VoiceChatPlayer> newVoiceChatPlayers){
         List<UUID> toRemove = this.voiceChatPlayers.keySet().stream()
                 .filter(uuid -> !newVoiceChatPlayers.containsKey(uuid))
                 .toList();

@@ -14,8 +14,6 @@ import net.fg83.hytalkclient.service.*;
 public class ApplicationState {
     // Manager for displaying error dialogs to the user
     private final ErrorDialogManager errorDialogManager = new ErrorDialogManager(this);
-    // Manager for persisting and retrieving user preferences
-    private final PreferenceManager preferenceManager = new PreferenceManager();
     // Manager for network connections (requires reference to this ApplicationState)
     private final ConnectionManager connectionManager = new ConnectionManager(this);
     // Manager for device pairing operations
@@ -23,7 +21,7 @@ public class ApplicationState {
     // Manager for player state and information
     private final PlayerManager playerManager = new PlayerManager();
     // Manager for audio streaming operations (uses preferences for device settings)
-    private final AudioStreamManager audioStreamManager = new AudioStreamManager(preferenceManager);
+    private final AudioStreamManager audioStreamManager = new AudioStreamManager();
     // Manager for audio network communication
     private final AudioNetworkManager audioNetworkManager = new AudioNetworkManager();
     // Manager for audio mixing operations (uses audio stream manager)

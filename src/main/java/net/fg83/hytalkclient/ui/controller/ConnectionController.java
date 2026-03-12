@@ -12,7 +12,9 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+
 import net.fg83.hytalkclient.HytalkClientApplication;
+import net.fg83.hytalkclient.service.PreferenceManager;
 import net.fg83.hytalkclient.ui.event.ConnectionSetupEvent;
 import net.fg83.hytalkclient.ui.event.view.ViewEvent;
 import net.fg83.hytalkclient.util.AppConstants;
@@ -31,6 +33,13 @@ public class ConnectionController {
     // Root container for the connection view UI
     @FXML
     private AnchorPane CONNECTION_ROOT;
+
+    public void setup(){
+        ((TextField) CONNECTION_ROOT.lookup("#server-address")).setText(PreferenceManager.getServerAddress());
+        if (PreferenceManager.getServerPort() != -1){
+            ((TextField) CONNECTION_ROOT.lookup("#server-control-port")).setText(Integer.toString(PreferenceManager.getServerPort()));
+        }
+    }
 
     /**
      * Attempts to establish a connection to the server using user-provided parameters.
@@ -69,6 +78,10 @@ public class ConnectionController {
             System.out.println("Port number out of range");
         }
         else {
+            PreferenceManager.saveServerAddress(serverAddress);
+            if (!serverPort.isBlank()){
+                PreferenceManager.saveServerPort(serverPortInt);
+            }
             // Log connection attempt
             System.out.println("Attempting connection to " + serverAddress + ":" + serverPort);
             // Fire event to initiate connection with validated parameters
