@@ -13,7 +13,7 @@ import net.fg83.hytalkclient.service.*;
  */
 public class ApplicationState {
     // Manager for displaying error dialogs to the user
-    private final ErrorDialogManager errorDialogManager = new ErrorDialogManager();
+    private final ErrorDialogManager errorDialogManager = new ErrorDialogManager(this);
     // Manager for persisting and retrieving user preferences
     private final PreferenceManager preferenceManager = new PreferenceManager();
     // Manager for network connections (requires reference to this ApplicationState)

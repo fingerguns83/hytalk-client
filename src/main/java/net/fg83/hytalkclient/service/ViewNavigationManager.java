@@ -118,4 +118,8 @@ public class ViewNavigationManager {
             }
         });
     }
+
+    public AnchorPane getRootPane() {
+        return rootPane;
+    }
 }

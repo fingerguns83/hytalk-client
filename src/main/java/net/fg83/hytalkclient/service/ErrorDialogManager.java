@@ -6,12 +6,19 @@ package net.fg83.hytalkclient.service;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.application.Platform;
+import net.fg83.hytalkclient.model.ApplicationState;
 
 /**
  * Manages the display of error dialogs in the application.
  * Ensures dialogs are shown on the JavaFX Application Thread.
  */
 public class ErrorDialogManager {
+    // Application state containing shared managers and configuration
+    private final ApplicationState applicationState;
+
+    public ErrorDialogManager(ApplicationState applicationState) {
+        this.applicationState = applicationState;
+    }
     /**
      * Displays an error dialog with the specified title and message.
      * The dialog is shown on the JavaFX Application Thread to ensure thread safety.
@@ -31,8 +38,8 @@ public class ErrorDialogManager {
             // Set the main error message
             alert.setContentText(message);
             // Position the dialog at the top-left corner of the screen
-            alert.setX(0);
-            alert.setY(0);
+            alert.setX(applicationState.getViewNavigationManager().getRootPane().getScene().getWindow().getX());
+            alert.setY(applicationState.getViewNavigationManager().getRootPane().getScene().getWindow().getY());
             // Display the dialog and wait for user acknowledgment
             alert.showAndWait();
         });
