@@ -214,11 +214,8 @@ public class ConnectionManager {
      */
     private void handleClose(int code, String reason, boolean remote) {
         // Determine who initiated the close
-        String source = remote ? "server" : "client";
-        applicationState.getErrorDialogManager().showError(
-                "Connection Closed",
-                String.format("Connection closed by %s\nCode: %d\nReason: %s", source, code, reason)
-        );
+        applicationState.getAudioNetworkManager().shutdown();
+        applicationState.getAudioStreamManager().shutdown();
         reshowConnectionView();
     }
 
