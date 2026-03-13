@@ -49,9 +49,9 @@ pipeline {
                        cleanWs()
                        checkout scm
                        bat 'mvn package jpackage:jpackage@win'
-                       withCredentials([string(credentialsId: 'CERTUM_CERT_NAME', variable: 'CERT_NAME')]) {
-                          bat 'signtool sign /n "%CERT_NAME%" /t http://time.certum.pl/ /fd sha256 /v target\\dist\\Hytalk-*.exe'
-                      }
+                       withCredentials([string(credentialsId: 'CERTUM_CERT_THUMBPRINT', variable: 'CERT_THUMB')]) {
+                           bat 'signtool sign /sha1 "%CERT_THUMB%" /t http://time.certum.pl/ /fd sha256 /v target\\dist\\Hytalk-*.exe'
+                       }
                        bat 'if not exist artifacts\\windows-amd64 mkdir artifacts\\windows-amd64'
                        bat 'xcopy /E /I /Y target artifacts\\windows-amd64'
                     }
@@ -67,8 +67,8 @@ pipeline {
                     steps {
                         bat 'mvn -version'
                         bat 'mvn clean package jpackage:jpackage@win'
-                        withCredentials([string(credentialsId: 'CERTUM_CERT_NAME', variable: 'CERT_NAME')]) {
-                            bat 'signtool sign /n "%CERT_NAME%" /t http://time.certum.pl/ /fd sha256 /v target\\dist\\Hytalk-*.exe'
+                        withCredentials([string(credentialsId: 'CERTUM_CERT_THUMBPRINT', variable: 'CERT_THUMB')]) {
+                            bat 'signtool sign /sha1 "%CERT_THUMB%" /t http://time.certum.pl/ /fd sha256 /v target\\dist\\Hytalk-*.exe'
                         }
                         bat 'if not exist artifacts\\windows-arm64 mkdir artifacts\\windows-arm64'
                         bat 'xcopy /E /I /Y target artifacts\\windows-arm64'
