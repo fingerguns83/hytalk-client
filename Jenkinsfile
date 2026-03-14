@@ -27,6 +27,8 @@ pipeline {
                     agent { label 'mac && arm' }
 
                     steps {
+                    cleanWs()
+                        checkout scm
                         sh 'mvn clean package javafx:jlink io.github.fvarrui:javapackager:package@package-mac-arm'
                         sh 'mkdir -p artifacts/mac-arm64'
                         sh 'cp -r target/* artifacts/mac-arm64/'
@@ -65,8 +67,8 @@ pipeline {
                 stage('Win ARM') {
                     agent { label 'windows && arm' }
                     steps {
-                        bat 'mvn -version'
-                        bat 'mvn clean package jpackage:jpackage@win'
+                        cleanWs()
+                        bat 'mvn package jpackage:jpackage@win'
                         bat 'attrib -r "target/dist/*.exe"'
                         withCredentials([string(credentialsId: 'CERTUM_CERT_THUMBPRINT', variable: 'CERT_THUMB')]) {
                             bat 'signtool sign /v /debug /sha1 "%CERT_THUMB%" /fd sha256 /tr http://time.certum.pl /td sha256 target\\dist\\Hytalk-*.exe'
