@@ -54,6 +54,7 @@ pipeline {
                         withCredentials([string(credentialsId: 'CERTUM_CERT_THUMBPRINT', variable: 'CERT_THUMB')]) {
                             bat 'signtool sign /v /debug /sha1 "%CERT_THUMB%" /fd sha256 /tr http://time.certum.pl /td sha256 target\\dist\\Hytalk-*.exe'
                         }
+                        bat 'signtool verify /pa /all target\\dist\\Hytalk-*.exe'
                         bat 'if not exist artifacts\\windows-amd64 mkdir artifacts\\windows-amd64'
                         bat 'xcopy /E /I /Y target artifacts\\windows-amd64'
                     }
@@ -73,6 +74,7 @@ pipeline {
                         withCredentials([string(credentialsId: 'CERTUM_CERT_THUMBPRINT', variable: 'CERT_THUMB')]) {
                             bat 'signtool sign /v /debug /sha1 "%CERT_THUMB%" /fd sha256 /tr http://time.certum.pl /td sha256 target\\dist\\Hytalk-*.exe'
                         }
+                        bat 'signtool verify /pa /all target\\dist\\Hytalk-*.exe'
                         bat 'if not exist artifacts\\windows-arm64 mkdir artifacts\\windows-arm64'
                         bat 'xcopy /E /I /Y target artifacts\\windows-arm64'
                     }
