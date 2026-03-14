@@ -37,7 +37,6 @@ pipeline {
                             archiveArtifacts artifacts: 'artifacts/mac-arm64/**/*', fingerprint: true
                         }
                     }
-
                 }
 
                 stage('Win AMD') {
@@ -46,14 +45,15 @@ pipeline {
                         skipDefaultCheckout()
                     }
                     steps {
-                       cleanWs()
-                       checkout scm
-                       bat 'mvn package jpackage:jpackage@win'
-                       withCredentials([string(credentialsId: 'CERTUM_CERT_THUMBPRINT', variable: 'CERT_THUMB')]) {
-                           bat 'signtool sign /sha1 "%CERT_THUMB%" /t http://time.certum.pl/ /fd sha256 /v target\\dist\\Hytalk-*.exe'
-                       }
-                       bat 'if not exist artifacts\\windows-amd64 mkdir artifacts\\windows-amd64'
-                       bat 'xcopy /E /I /Y target artifacts\\windows-amd64'
+                        cleanWs()
+                        checkout scm
+                        bat 'mvn package jpackage:jpackage@win'
+                        bat 'attrib -r "target/dist/*.exe"'
+                        withCredentials([string(credentialsId: 'CERTUM_CERT_THUMBPRINT', variable: 'CERT_THUMB')]) {
+                            bat 'signtool sign /v /debug /sha1 "%CERT_THUMB%" /fd sha256 /tr http://time.certum.pl /td sha256 target\\dist\\Hytalk-*.exe'
+                        }
+                        bat 'if not exist artifacts\\windows-amd64 mkdir artifacts\\windows-amd64'
+                        bat 'xcopy /E /I /Y target artifacts\\windows-amd64'
                     }
                     post {
                         success {
@@ -67,8 +67,9 @@ pipeline {
                     steps {
                         bat 'mvn -version'
                         bat 'mvn clean package jpackage:jpackage@win'
+                        bat 'attrib -r "target/dist/*.exe"'
                         withCredentials([string(credentialsId: 'CERTUM_CERT_THUMBPRINT', variable: 'CERT_THUMB')]) {
-                            bat 'signtool sign /sha1 "%CERT_THUMB%" /t http://time.certum.pl/ /fd sha256 /v target\\dist\\Hytalk-*.exe'
+                            bat 'signtool sign /v /debug /sha1 "%CERT_THUMB%" /fd sha256 /tr http://time.certum.pl /td sha256 target\\dist\\Hytalk-*.exe'
                         }
                         bat 'if not exist artifacts\\windows-arm64 mkdir artifacts\\windows-arm64'
                         bat 'xcopy /E /I /Y target artifacts\\windows-arm64'
@@ -93,7 +94,7 @@ pipeline {
                 //        }
                 //    }
                 //}
-//
+
                 //stage('Linux ARM') {
                 //    agent { label 'linux && arm' }
                 //    steps {
