@@ -4,9 +4,21 @@
 package net.fg83.hytalkclient.ui.controller;
 
 import javafx.animation.AnimationTimer;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.control.Label;
+import javafx.scene.effect.Bloom;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.paint.Color;
+import javafx.util.Duration;
 import net.fg83.hytalkclient.ui.event.PairingEvent;
 
 import java.time.Instant;
@@ -27,6 +39,10 @@ public class PairingController {
     // Timer that continuously checks if the pairing code has expired
     private AnimationTimer expirationTimer;
 
+    private final Timeline clipboardFlashTimeline = new Timeline(
+            new KeyFrame(Duration.ZERO, e -> PAIRING_CODE_LABEL.setEffect(new Bloom())),
+            new KeyFrame(Duration.millis(100), e -> PAIRING_CODE_LABEL.setEffect(null))
+    );
     /**
      * Initializes the pairing view with a code and expiration time.
      *
@@ -91,5 +107,16 @@ public class PairingController {
         if (expirationTimer != null) {
             expirationTimer.stop();
         }
+    }
+
+    public void onCodeClick(MouseEvent mouseEvent) {
+        
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+        ClipboardContent content = new ClipboardContent();
+        content.putString("/hytalk pair " + PAIRING_CODE_LABEL.getText());
+        clipboard.setContent(content);
+
+
+        clipboardFlashTimeline.play();
     }
 }
