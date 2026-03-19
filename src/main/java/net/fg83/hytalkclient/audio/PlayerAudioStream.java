@@ -63,6 +63,9 @@ public class PlayerAudioStream extends AudioStream {
     public synchronized void pushPacket(int sequence, byte[] opusFrame) {
         packetsReceived++;
 
+        if (expectedSequence == Integer.MAX_VALUE) {
+            expectedSequence = 0;
+        }
         // Drop packets that are too old (more than 100 sequences behind expected)
         if (expectedSequence != -1 && sequence < expectedSequence - 100) {
             packetsDropped++;
@@ -242,7 +245,7 @@ public class PlayerAudioStream extends AudioStream {
      *
      * @return formatted string with packet counts and buffer status
      */
-    public synchronized String wgetStats() {
+    public synchronized String getStats() {
         return String.format("RX:%d Dropped:%d PLC:%d Buffer:%d Buffering:%b",
                 packetsReceived, packetsDropped, plcFrames, jitterBuffer.size(), buffering);
     }

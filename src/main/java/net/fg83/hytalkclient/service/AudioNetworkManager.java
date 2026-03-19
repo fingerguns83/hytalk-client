@@ -124,7 +124,9 @@ public class AudioNetworkManager {
             // Send the encoded packet if encoding was successful
             if (encodedBytes > 0) {
                 // Send via UDP with sequence number
+                sequenceNumber.compareAndSet(Integer.MAX_VALUE, 0);
                 int seq = sequenceNumber.getAndIncrement();
+
                 udpClient.sendAudio(seq, opusPacket, encodedBytes);
             }
 
