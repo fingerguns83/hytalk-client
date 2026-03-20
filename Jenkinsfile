@@ -27,7 +27,7 @@ pipeline {
                     agent { label 'mac && arm' }
 
                     steps {
-                    cleanWs()
+                        cleanWs()
                         checkout scm
                         sh 'mvn clean package javafx:jlink io.github.fvarrui:javapackager:package@package-mac-arm'
                         sh 'mkdir -p artifacts/mac-arm64'
@@ -69,6 +69,7 @@ pipeline {
                     agent { label 'windows && arm' }
                     steps {
                         cleanWs()
+                        checkout scm
                         bat 'mvn package jpackage:jpackage@win'
                         bat 'attrib -r "target/dist/*.exe"'
                         withCredentials([string(credentialsId: 'CERTUM_CERT_THUMBPRINT', variable: 'CERT_THUMB')]) {
