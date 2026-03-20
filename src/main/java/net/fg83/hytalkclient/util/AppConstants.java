@@ -13,7 +13,7 @@ public class AppConstants {
     // Application version string
     public static final String VERSION = "1.0.3-alpha";
     // Protocol version for client-server communication
-    public static final String PROTO_VERSION = "1.0";
+    public static final String PROTO_VERSION = "1.1";
     // Default port for server connections
     public static final int DEFAULT_SERVER_PORT = 5222;
 

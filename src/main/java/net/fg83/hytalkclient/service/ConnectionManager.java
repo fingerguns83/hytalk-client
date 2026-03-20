@@ -143,6 +143,8 @@ public class ConnectionManager {
                     applicationState.getErrorDialogManager().showError(
                             "Connection Error",
                             "Invalid protocol version [" + AppConstants.PROTO_VERSION + "]. (Server supports " + protocolVersion + ")");
+                    reshowConnectionView();
+                    return;
                 }
 
                 // Setup audio UDP connection with server's audio port
